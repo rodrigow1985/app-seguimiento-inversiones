@@ -1,0 +1,32 @@
+{
+  "brokers": [
+    {
+      "name": "IOL",
+      "fullName": "InvertirOnline",
+      "commissionPct": 0.007,
+      "currency": "ARS",
+      "description": "0.5% + 21% IVA ≈ 0.605%, redondeado a 0.7% efectivo"
+    },
+    {
+      "name": "Binance",
+      "fullName": "Binance Exchange",
+      "commissionPct": 0.00726,
+      "currency": "USD",
+      "description": "0.6% + 21% IVA ≈ 0.726%"
+    },
+    {
+      "name": "BingX",
+      "fullName": "BingX Exchange",
+      "commissionPct": 0.002,
+      "currency": "USD",
+      "description": "0.2% flat"
+    },
+    {
+      "name": "Balanz",
+      "fullName": "Balanz Capital",
+      "commissionPct": 0.007,
+      "currency": "ARS",
+      "description": "0.7% efectivo"
+    }
+  ]
+}

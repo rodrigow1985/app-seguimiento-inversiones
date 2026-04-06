@@ -1,0 +1,298 @@
+// Prisma Schema — App Seguimiento Inversiones
+// Motor: PostgreSQL 16
+// ORM:   Prisma 5.x
+//
+// Convenciones:
+//   - IDs: UUID v4
+//   - Montos: Decimal (nunca Float)
+//   - Fechas de negocio: @db.Date
+//   - Timestamps del sistema: DateTime (TIMESTAMPTZ)
+//   - Enums en DB: UPPER_SNAKE_CASE
+//   - Campos calculados: NO van en DB (se computan en servicio)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
+
+enum AssetType {
+  CRYPTO
+  ACCION_ARG
+  CEDEAR
+  FCI
+  BONO
+  COMMODITY
+}
+
+enum Currency {
+  ARS
+  USD
+}
+
+enum PriceSource {
+  COINGECKO
+  IOL
+  RAVA
+  MANUAL
+}
+
+enum PositionStatus {
+  OPEN
+  CLOSED
+}
+
+enum TradeType {
+  BUY
+  SELL
+}
+
+enum DcaEntryType {
+  APERTURA
+  INCREMENTO
+  CIERRE
+}
+
+enum CclSource {
+  AMBITO
+  MANUAL
+}
+
+// ─────────────────────────────────────────────
+// ASSETS
+// ─────────────────────────────────────────────
+
+model Asset {
+  id            String      @id @default(uuid())
+  ticker        String      @unique @db.VarChar(20)
+  name          String      @db.VarChar(100)
+  assetType     AssetType   @map("asset_type")
+  currencyNative Currency   @map("currency_native")
+  priceSource   PriceSource @map("price_source")
+  priceSourceId String?     @map("price_source_id") @db.VarChar(100)
+  isActive      Boolean     @default(true) @map("is_active")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  // Relaciones
+  positions      Position[]
+  dcaStrategies  DcaStrategy[]
+  priceSnapshots PriceSnapshot[]
+
+  @@map("assets")
+}
+
+// ─────────────────────────────────────────────
+// BROKERS
+// ─────────────────────────────────────────────
+
+model Broker {
+  id            String   @id @default(uuid())
+  name          String   @unique @db.VarChar(50)
+  commissionPct Decimal  @map("commission_pct") @db.Decimal(6, 4)
+  currency      Currency
+  config        Json     @default("{}")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  // Relaciones
+  positions     Position[]
+  dcaStrategies DcaStrategy[]
+
+  @@map("brokers")
+}
+
+// ─────────────────────────────────────────────
+// PORTFOLIOS
+// ─────────────────────────────────────────────
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  currency    Currency
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Relaciones
+  positions     Position[]
+  dcaStrategies DcaStrategy[]
+
+  @@map("portfolios")
+}
+
+// ─────────────────────────────────────────────
+// CCL RATES
+// ─────────────────────────────────────────────
+
+model CclRate {
+  id        String    @id @default(uuid())
+  date      DateTime  @unique @db.Date
+  rate      Decimal   @db.Decimal(12, 4)
+  source    CclSource @default(AMBITO)
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  // Relaciones
+  trades Trade[]
+
+  // Sin updatedAt: immutable, se hace upsert no update
+
+  @@index([date(sort: Desc)])
+  @@map("ccl_rates")
+}
+
+// ─────────────────────────────────────────────
+// POSITIONS (Trading)
+// ─────────────────────────────────────────────
+
+model Position {
+  id          String         @id @default(uuid())
+  portfolioId String         @map("portfolio_id")
+  assetId     String         @map("asset_id")
+  brokerId    String         @map("broker_id")
+  status      PositionStatus @default(OPEN)
+  openedAt    DateTime       @map("opened_at") @db.Date
+  closedAt    DateTime?      @map("closed_at") @db.Date
+  notes       String?        @db.Text
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  // Relaciones
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  asset     Asset     @relation(fields: [assetId],     references: [id])
+  broker    Broker    @relation(fields: [brokerId],     references: [id])
+  trades    Trade[]
+
+  // Índices
+  @@index([portfolioId])
+  @@index([assetId])
+  @@index([brokerId])
+  @@index([status])
+  @@index([portfolioId, status])    // Filtro más frecuente: posiciones abiertas de una cartera
+
+  @@map("positions")
+}
+
+// ─────────────────────────────────────────────
+// TRADES
+// ─────────────────────────────────────────────
+
+model Trade {
+  id          String    @id @default(uuid())
+  positionId  String    @map("position_id")
+  cclRateId   String?   @map("ccl_rate_id")  // Null si currency = USD
+  type        TradeType
+  tradeDate   DateTime  @map("trade_date") @db.Date
+  units       Decimal   @db.Decimal(18, 8)   // 8 decimales para crypto
+  priceNative Decimal   @map("price_native") @db.Decimal(18, 4)
+  currency    Currency
+  priceUsd    Decimal   @map("price_usd")    @db.Decimal(18, 4)  // Snapshot histórico
+  totalUsd    Decimal   @map("total_usd")    @db.Decimal(18, 4)  // Snapshot histórico
+  commission  Decimal   @default(0)           @db.Decimal(18, 4)
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  position Position  @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  cclRate  CclRate?  @relation(fields: [cclRateId],  references: [id])
+
+  // Índices
+  @@index([positionId])
+  @@index([cclRateId])
+  @@index([tradeDate])
+  @@index([positionId, type])        // Para calcular PPC por tipo
+  @@index([positionId, tradeDate])   // Para listar trades cronológicamente
+
+  @@map("trades")
+}
+
+// ─────────────────────────────────────────────
+// DCA STRATEGIES
+// ─────────────────────────────────────────────
+
+model DcaStrategy {
+  id          String    @id @default(uuid())
+  portfolioId String    @map("portfolio_id")
+  assetId     String    @map("asset_id")
+  brokerId    String    @map("broker_id")
+  isActive    Boolean   @default(true) @map("is_active")
+  startedAt   DateTime  @map("started_at") @db.Date
+  closedAt    DateTime? @map("closed_at")  @db.Date
+  notes       String?   @db.Text
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones
+  portfolio Portfolio  @relation(fields: [portfolioId], references: [id])
+  asset     Asset      @relation(fields: [assetId],     references: [id])
+  broker    Broker     @relation(fields: [brokerId],     references: [id])
+  entries   DcaEntry[]
+
+  // Índices
+  @@index([portfolioId])
+  @@index([assetId])
+  @@index([brokerId])
+  @@index([isActive])
+
+  @@map("dca_strategies")
+}
+
+// ─────────────────────────────────────────────
+// DCA ENTRIES
+// ─────────────────────────────────────────────
+
+model DcaEntry {
+  id                    String       @id @default(uuid())
+  strategyId            String       @map("strategy_id")
+  type                  DcaEntryType
+  entryDate             DateTime     @map("entry_date") @db.Date
+  amountUsd             Decimal      @map("amount_usd")              @db.Decimal(18, 4)
+  // Denormalización explícita: suma acumulada de capital hasta esta entrada
+  accumulatedCapitalUsd Decimal      @map("accumulated_capital_usd") @db.Decimal(18, 4)
+  assetPriceAtEntry     Decimal?     @map("asset_price_at_entry")    @db.Decimal(18, 4)
+  unitsReceived         Decimal?     @map("units_received")          @db.Decimal(18, 8)
+  notes                 String?      @db.Text
+  createdAt             DateTime     @default(now()) @map("created_at")
+  updatedAt             DateTime     @updatedAt @map("updated_at")
+
+  // Relaciones
+  strategy DcaStrategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+
+  // Índices
+  @@index([strategyId])
+  @@index([strategyId, entryDate])   // Para gráfico de acumulación en orden cronológico
+
+  @@map("dca_entries")
+}
+
+// ─────────────────────────────────────────────
+// PRICE SNAPSHOTS
+// ─────────────────────────────────────────────
+
+model PriceSnapshot {
+  id        String   @id @default(uuid())
+  assetId   String   @map("asset_id")
+  price     Decimal  @db.Decimal(18, 4)
+  currency  Currency
+  source    String   @db.VarChar(20)
+  fetchedAt DateTime @default(now()) @map("fetched_at")
+
+  // Sin updatedAt: append-only, los snapshots son inmutables
+
+  // Relaciones
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  // Índices
+  @@index([assetId, fetchedAt(sort: Desc)])  // Query: último precio de un activo
+
+  @@map("price_snapshots")
+}

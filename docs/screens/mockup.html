@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inversiones — Mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — DARK (default)
+══════════════════════════════════════════════ */
+:root {
+  --font: -apple-system, BlinkMacSystemFont, 'Trebuchet MS', Roboto, Ubuntu, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Surfaces */
+  --bg:          #030b14;
+  --surface:     #080f1e;
+  --surface-2:   #0c1829;
+  --surface-3:   #101e35;
+
+  /* Borders */
+  --border:      #162338;
+  --border-2:    #1e3352;
+
+  /* Text */
+  --text-1:      #d9eaff;
+  --text-2:      #6a93b8;
+  --text-3:      #344f6a;
+
+  /* Sidebar */
+  --nav-bg:      #030810;
+  --nav-text:    #334f68;
+  --nav-active:  #d9eaff;
+  --nav-hover:   rgba(0,220,128,0.05);
+  --nav-accent:  rgba(0,220,128,0.1);
+
+  /* Accent — terminal emerald */
+  --accent:      #00dc80;
+  --accent-2:    #00b868;
+  --accent-bg:   rgba(0,220,128,0.08);
+  --accent-dim:  rgba(0,220,128,0.04);
+  --accent-glow: 0 0 20px rgba(0,220,128,0.25);
+
+  /* Semantic */
+  --green:       #00dc80;
+  --green-bg:    rgba(0,220,128,0.08);
+  --green-text:  #00dc80;
+  --red:         #ff4566;
+  --red-bg:      rgba(255,69,102,0.1);
+  --red-text:    #ff4566;
+  --blue:        #3d9fff;
+  --blue-bg:     rgba(61,159,255,0.1);
+  --blue-text:   #3d9fff;
+  --orange:      #ffb830;
+  --orange-bg:   rgba(255,184,48,0.1);
+  --orange-text: #ffb830;
+  --violet:      #a78bfa;
+  --violet-bg:   rgba(167,139,250,0.1);
+  --violet-text: #a78bfa;
+  --slate-bg:    rgba(52,79,106,0.2);
+  --slate-text:  #6a93b8;
+
+  /* Shadows */
+  --shadow-sm:   0 1px 4px rgba(0,0,0,0.7);
+  --shadow:      0 4px 20px rgba(0,0,0,0.8);
+  --shadow-lg:   0 24px 64px rgba(0,0,0,0.9);
+
+  /* Radius */
+  --r-sm: 4px;
+  --r:    6px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+}
+
+/* ══════════════════════════════════════════════
+   DESIGN TOKENS — LIGHT
+══════════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg:          #f0ede6;
+  --surface:     #faf9f6;
+  --surface-2:   #f0ede6;
+  --surface-3:   #e6e1d8;
+
+  --border:      #d8d2c6;
+  --border-2:    #c4bdb0;
+
+  --text-1:      #16120c;
+  --text-2:      #574e42;
+  --text-3:      #9a8f80;
+
+  --nav-bg:      #0d1a28;
+  --nav-text:    #4a6a88;
+  --nav-active:  #f0ede6;
+  --nav-hover:   rgba(255,255,255,0.05);
+  --nav-accent:  rgba(0,160,90,0.14);
+
+  --accent:      #00804a;
+  --accent-2:    #006038;
+  --accent-bg:   rgba(0,128,74,0.08);
+  --accent-dim:  rgba(0,128,74,0.04);
+  --accent-glow: 0 0 20px rgba(0,128,74,0.15);
+
+  --green:       #00804a;
+  --green-bg:    rgba(0,128,74,0.08);
+  --green-text:  #00542f;
+  --red:         #c82040;
+  --red-bg:      rgba(200,32,64,0.08);
+  --red-text:    #7a0f26;
+  --blue:        #1260c0;
+  --blue-bg:     rgba(18,96,192,0.08);
+  --blue-text:   #0a3d80;
+  --orange:      #b86800;
+  --orange-bg:   rgba(184,104,0,0.08);
+  --orange-text: #7a4200;
+  --violet:      #6040c0;
+  --violet-bg:   rgba(96,64,192,0.08);
+  --violet-text: #3d2080;
+  --slate-bg:    rgba(87,78,66,0.1);
+  --slate-text:  #574e42;
+
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.08), 0 0 1px rgba(0,0,0,0.06);
+  --shadow:      0 4px 14px rgba(0,0,0,0.1);
+  --shadow-lg:   0 20px 50px rgba(0,0,0,0.14);
+}
+
+/* ══════════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-1);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ══════════════════════════════════════════════
+   PAGE LAYOUT (wrapper)
+══════════════════════════════════════════════ */
+.page-sidebar {
+  position: fixed;
+  left: 0; top: 0;
+  width: 192px; height: 100vh;
+  background: var(--nav-bg);
+  overflow-y: auto;
+  padding: 18px 8px 40px;
+  z-index: 200;
+  border-right: 1px solid rgba(255,255,255,0.03);
+}
+.page-sidebar-logo {
+  color: var(--nav-active);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 2px 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.page-sidebar-logo .logo-dot {
+  width: 22px; height: 22px;
+  background: var(--accent);
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+.page-sidebar h3 {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nav-text);
+  padding: 10px 10px 4px;
+  opacity: 0.6;
+}
+.page-sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--nav-text);
+  font-size: 12px;
+  font-weight: 500;
+  padding: 5px 10px;
+  border-radius: var(--r);
+  text-decoration: none;
+  margin-bottom: 1px;
+  transition: all 0.12s;
+  position: relative;
+}
+.page-sidebar a:hover { background: var(--nav-hover); color: #6a93b8; }
+.page-sidebar a.active-link {
+  background: var(--nav-accent);
+  color: var(--accent);
+}
+.page-sidebar a.active-link::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 2px; height: 16px;
+  background: var(--accent);
+  border-radius: 1px;
+}
+
+.page-main { margin-left: 192px; padding: 40px 52px 100px; }
+
+/* Theme toggle */
+.theme-toggle-wrap {
+  position: fixed;
+  top: 18px; right: 22px;
+  z-index: 300;
+}
+.theme-toggle {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  border-radius: var(--r);
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  font-family: var(--font);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.15s;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Page header */
+.page-header { margin-bottom: 56px; }
+.page-header-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.page-header-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-1);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+.page-header-sub { font-size: 14px; color: var(--text-2); margin-top: 6px; font-weight: 400; }
+
+/* Screen wrapper */
+.screen-wrap { margin-bottom: 80px; scroll-margin-top: 32px; }
+.screen-meta { margin-bottom: 14px; }
+.screen-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+.screen-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+}
+.screen-desc { font-size: 13px; color: var(--text-2); margin-top: 3px; font-weight: 400; }
+
+/* Screen frame */
+.frame {
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  width: 1200px;
+  min-height: 640px;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+/* ══════════════════════════════════════════════
+   APP SHELL
+══════════════════════════════════════════════ */
+.app { display: flex; flex: 1; min-height: 640px; }
+
+/* App Nav */
+.app-nav {
+  width: 210px;
+  min-height: 640px;
+  background: var(--nav-bg);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(255,255,255,0.03);
+}
+.app-nav-logo {
+  padding: 16px 14px 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.app-nav-logo .logo-mark {
+  width: 30px; height: 30px;
+  background: var(--accent);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.app-nav-logo .logo-mark svg { width: 16px; height: 16px; }
+.app-nav-logo-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--nav-active);
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.app-nav-logo-sub {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--nav-text);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1;
+  display: block;
+  margin-top: 2px;
+}
+
+.app-nav-section {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--nav-text);
+  padding: 16px 14px 5px;
+  opacity: 0.5;
+}
+.app-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--nav-text);
+  font-size: 12.5px;
+  font-weight: 500;
+  padding: 6px 10px 6px 14px;
+  margin: 1px 6px;
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: all 0.12s;
+  position: relative;
+}
+.app-nav-item:hover { background: var(--nav-hover); color: #6a93b8; }
+.app-nav-item.active {
+  background: var(--nav-accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.app-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translateY(-50%);
+  width: 3px; height: 18px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+}
+.nav-icon { font-size: 13px; width: 16px; text-align: center; flex-shrink: 0; }
+.app-nav-item.sub { padding-left: 38px; font-size: 12px; color: var(--nav-text); }
+.app-nav-item.sub.active { color: var(--accent); background: rgba(0,220,128,0.07); }
+
+.app-nav-spacer { flex: 1; }
+.app-nav-footer {
+  border-top: 1px solid rgba(255,255,255,0.04);
+  padding: 8px 6px;
+}
+
+/* App Main */
+.app-main {
+  flex: 1;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Topbar */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  gap: 12px;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+}
+.topbar-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.topbar-breadcrumb .sep { opacity: 0.5; }
+.topbar-breadcrumb .crumb-active { color: var(--text-1); font-weight: 600; }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+/* Content body */
+.body { padding: 18px 20px; flex: 1; overflow: auto; }
+
+/* ══════════════════════════════════════════════
+   COMPONENTS
+══════════════════════════════════════════════ */
+
+/* Metric grid */
+.metrics { display: grid; gap: 10px; margin-bottom: 18px; }
+.metrics-4 { grid-template-columns: repeat(4,1fr); }
+.metrics-3 { grid-template-columns: repeat(3,1fr); }
+.metrics-2 { grid-template-columns: repeat(2,1fr); }
+
+/* Metric card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  transition: border-color 0.15s;
+}
+.card:hover { border-color: var(--border-2); }
+.card-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  margin-bottom: 8px;
+}
+.card-value {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.card-sub {
+  font-size: 11.5px;
+  margin-top: 5px;
+  color: var(--text-3);
+  font-weight: 400;
+}
+.card-sub.pos { color: var(--green); }
+.card-sub.neg { color: var(--red); }
+.card-accent-bar {
+  width: 28px; height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  margin-bottom: 10px;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.badge-green  { background: var(--green-bg);  color: var(--green-text); }
+.badge-red    { background: var(--red-bg);    color: var(--red-text); }
+.badge-blue   { background: var(--blue-bg);   color: var(--blue-text); }
+.badge-violet { background: var(--violet-bg); color: var(--violet-text); }
+.badge-orange { background: var(--orange-bg); color: var(--orange-text); }
+.badge-slate  { background: var(--slate-bg);  color: var(--slate-text); }
+.badge-accent { background: var(--accent-bg); color: var(--accent); }
+
+/* Text colors */
+.pos { color: var(--green); font-weight: 600; font-family: var(--mono); }
+.neg { color: var(--red);   font-weight: 600; font-family: var(--mono); }
+.muted { color: var(--text-3); }
+.num { font-family: var(--mono); }
+
+/* Section header */
+.section-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.section-link {
+  font-size: 11.5px;
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Tables */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+thead th {
+  background: var(--surface-2);
+  color: var(--text-3);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 9px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: var(--surface-2); }
+.td-strong { font-weight: 700; letter-spacing: -0.01em; }
+.td-mono { font-family: var(--mono); font-size: 12px; }
+.td-asset {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  font-family: var(--mono);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 1px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 3px;
+  width: fit-content;
+  margin-bottom: 16px;
+}
+.tab {
+  padding: 5px 14px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.12s;
+  white-space: nowrap;
+  font-family: var(--font);
+}
+.tab.active {
+  background: var(--surface);
+  color: var(--text-1);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font);
+  font-size: 12.5px;
+  font-weight: 600;
+  border-radius: var(--r);
+  border: none;
+  cursor: pointer;
+  padding: 7px 14px;
+  transition: all 0.15s;
+  white-space: nowrap;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #030b14;
+  font-weight: 700;
+}
+.btn-primary:hover { filter: brightness(1.1); }
+.btn-secondary {
+  background: var(--surface);
+  color: var(--text-1);
+  border: 1px solid var(--border-2);
+  box-shadow: var(--shadow-sm);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn-ghost {
+  background: transparent;
+  color: var(--text-3);
+  padding: 5px 8px;
+  font-size: 12px;
+}
+.btn-ghost:hover { color: var(--text-2); background: var(--surface-3); }
+.btn-danger {
+  background: var(--red-bg);
+  color: var(--red-text);
+  border: 1px solid transparent;
+}
+.btn-danger:hover { border-color: var(--red); }
+.btn-sync {
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-dim);
+}
+
+/* CCL pill */
+.ccl-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r);
+  padding: 4px 10px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  color: var(--text-2);
+}
+.ccl-pill .ccl-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; }
+.ccl-pill .ccl-val { color: var(--text-1); font-weight: 700; }
+.ccl-pill .ccl-chg { color: var(--green); font-weight: 700; }
+
+/* Form */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.form-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-row-1 { grid-template-columns: 1fr; }
+.form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.form-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+}
+.form-input, .form-select {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--text-1);
+  font-family: var(--mono);
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.form-input.auto-filled { border-color: var(--green); background: rgba(0,220,128,0.05); }
+.form-hint { font-family: var(--mono); font-size: 10px; color: var(--green); margin-top: 2px; }
+
+/* Preview box */
+.preview-box {
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  font-size: 12.5px;
+}
+.preview-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  color: var(--text-2);
+  font-size: 12px;
+}
+.preview-row .pv-label { font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-3); }
+.preview-row .pv-val { font-family: var(--mono); font-weight: 700; color: var(--text-1); }
+.preview-divider { border: none; border-top: 1px solid var(--border); margin: 6px 0; }
+.preview-total .pv-val { color: var(--accent); font-size: 14px; }
+
+/* Modal */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(3,11,20,0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-xl);
+  padding: 24px;
+  width: 500px;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header { margin-bottom: 20px; }
+.modal-eyebrow {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-1);
+  letter-spacing: -0.02em;
+}
+.modal-sub { font-size: 12.5px; color: var(--text-3); margin-top: 2px; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+
+/* DCA card */
+.dca-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.dca-card:hover { border-color: var(--border-2); box-shadow: var(--shadow-sm); }
+.dca-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.dca-card-icon {
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+}
+.dca-card-name { font-size: 14px; font-weight: 700; color: var(--text-1); font-family: var(--mono); }
+.dca-card-full { font-size: 11px; color: var(--text-3); margin-top: 1px; }
+.dca-card-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dca-stat-label { font-family: var(--mono); font-size: 9px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+.dca-stat-value { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--text-1); margin-top: 3px; }
+.dca-stat-value.pos { color: var(--green); }
+
+/* Sparklines / Charts */
+.chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.chart-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 10px; }
+.chart-label {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--text-3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.chart-value { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--text-1); }
+.chart-change { font-family: var(--mono); font-size: 11px; font-weight: 600; }
+svg.chart { width: 100%; overflow: visible; }
+
+/* CCL hero */
+.ccl-hero {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 20px 24px;
+  text-align: center;
+  min-width: 180px;
+}
+.ccl-hero-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text-3);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 8px;
+}
+.ccl-hero-value {
+  font-family: var(--mono);
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--text-1);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.ccl-hero-chg { font-family: var(--mono); font-size: 13px; font-weight: 700; margin-top: 6px; }
+
+/* Period buttons */
+.period-btns { display: flex; gap: 3px; margin-bottom: 10px; }
+.period-btn {
+  padding: 3px 10px;
+  border-radius: var(--r-sm);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.period-btn.active { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+
+/* Status dot */
+.status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+.dot-green { background: var(--green); }
+.dot-slate { background: var(--text-3); }
+.dot-pulse { animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Integration card */
+.int-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+}
+.int-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
+.int-name { font-size: 14px; font-weight: 700; color: var(--text-1); }
+.int-desc { font-size: 12px; color: var(--text-3); margin-bottom: 10px; }
+.int-meta { font-family: var(--mono); font-size: 10px; color: var(--text-3); margin-bottom: 10px; }
+.int-actions { display: flex; gap: 6px; }
+
+/* Inline editable */
+.inline-edit {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  padding: 4px 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-1);
+  width: 90px;
+}
+
+/* Trade timeline */
+.trade-list { display: flex; flex-direction: column; gap: 6px; }
+.trade-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 12.5px;
+}
+.trade-type-pill {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 2px 7px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.trade-buy  { background: var(--green-bg); color: var(--green); }
+.trade-sell { background: var(--red-bg); color: var(--red); }
+.trade-data { flex: 1; display: flex; align-items: center; gap: 20px; }
+.trade-field { display: flex; flex-direction: column; }
+.trade-field-label { font-family: var(--mono); font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-3); }
+.trade-field-val { font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--text-1); }
+.trade-actions { display: flex; gap: 4px; }
+
+/* DCA progress bar */
+.progress-bar-wrap { margin-top: 8px; }
+.progress-bar-bg { background: var(--surface-3); border-radius: 3px; height: 4px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.4s; }
+.progress-label { font-family: var(--mono); font-size: 9px; color: var(--text-3); margin-top: 4px; text-align: right; }
+
+/* Entry item */
+.entry-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  font-size: 12.5px;
+  margin-bottom: 5px;
+}
+.entry-type-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.entry-open  { background: var(--accent); }
+.entry-add   { background: var(--blue); }
+.entry-close { background: var(--red); }
+
+/* Dim overlay */
+.dim { opacity: 0.12; pointer-events: none; user-select: none; }
+
+/* Tooltip-like */
+.tooltip-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-2);
+  border-radius: var(--r);
+  padding: 3px 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--text-2);
+}
+
+/* Settings section */
+.settings-section-title {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  font-weight: 700;
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.broker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  margin-bottom: 5px;
+}
+.broker-icon {
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.broker-name { font-weight: 600; color: var(--text-1); font-size: 13px; flex: 1; }
+.broker-fee { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+
+</style>
+</head>
+<body>
+
+<!-- Theme toggle -->
+<div class="theme-toggle-wrap">
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <span id="theme-icon">☀</span>
+    <span id="theme-label">Light</span>
+  </button>
+</div>
+
+<!-- TOC Sidebar -->
+<nav class="page-sidebar">
+  <div class="page-sidebar-logo">
+    <div class="logo-dot">▲</div>
+    Mockups
+  </div>
+  <h3>Pantallas</h3>
+  <a href="#s01">S01 — Dashboard</a>
+  <a href="#s02">S02 — Trading</a>
+  <a href="#s03">S03 — Posición</a>
+  <a href="#s04">S04 — Nuevo trade</a>
+  <a href="#s05">S05 — DCA Lista</a>
+  <a href="#s06">S06 — DCA Detalle</a>
+  <a href="#s07">S07 — Nueva entrada</a>
+  <a href="#s08">S08 — CCL Histórico</a>
+  <a href="#s09">S09 — Configuración</a>
+</nav>
+
+<main class="page-main">
+  <div class="page-header">
+    <div class="page-header-eyebrow">// app-seguimiento-inversiones · 9 screens</div>
+    <div class="page-header-title">Diseño de Pantallas</div>
+    <div class="page-header-sub">React + Express + PostgreSQL — Mockups de alta fidelidad</div>
+  </div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S01 — DASHBOARD
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s01">
+  <div class="screen-meta">
+    <div class="screen-num">// S01</div>
+    <div class="screen-name">Dashboard</div>
+    <div class="screen-desc">Vista general del portfolio. Primera pantalla al abrir la app.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// general</div>
+        <div class="app-nav-item active"><span class="nav-icon">⊞</span> Dashboard</div>
+        <div class="app-nav-section">// trading</div>
+        <div class="app-nav-item"><span class="nav-icon">◈</span> Cryptos</div>
+        <div class="app-nav-item"><span class="nav-icon">◉</span> Acciones ARG</div>
+        <div class="app-nav-item"><span class="nav-icon">◫</span> Cedears CP</div>
+        <div class="app-nav-item"><span class="nav-icon">◧</span> Jubilación</div>
+        <div class="app-nav-item"><span class="nav-icon">◪</span> FCI USD</div>
+        <div class="app-nav-item"><span class="nav-icon">◩</span> Renta Fija</div>
+        <div class="app-nav-section">// dca</div>
+        <div class="app-nav-item"><span class="nav-icon">↻</span> Estrategias</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">∿</span> CCL</div>
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-title">Dashboard</div>
+          </div>
+          <div class="topbar-actions">
+            <div class="ccl-pill">
+              <span class="ccl-label">CCL</span>
+              <span class="ccl-val">$1.218,50</span>
+              <span class="ccl-chg">+0.3%</span>
+            </div>
+            <span style="font-family:var(--mono);font-size:10px;color:var(--text-3);">14:32 hs</span>
+            <button class="btn btn-ghost">↻</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="metrics metrics-4">
+            <div class="card">
+              <div class="card-accent-bar"></div>
+              <div class="card-label">Capital Total</div>
+              <div class="card-value">$42.830</div>
+              <div class="card-sub">USD · 14 posiciones</div>
+            </div>
+            <div class="card">
+              <div class="card-accent-bar" style="background:var(--green)"></div>
+              <div class="card-label">P&L no realizado</div>
+              <div class="card-value pos">+$6.241</div>
+              <div class="card-sub pos">+17.1% histórico</div>
+            </div>
+            <div class="card">
+              <div class="card-accent-bar" style="background:var(--blue)"></div>
+              <div class="card-label">Posiciones abiertas</div>
+              <div class="card-value">14</div>
+              <div class="card-sub">en 4 carteras</div>
+            </div>
+            <div class="card">
+              <div class="card-accent-bar" style="background:var(--orange)"></div>
+              <div class="card-label">Estrategias DCA</div>
+              <div class="card-value">4</div>
+              <div class="card-sub">activas · $11.2k capital</div>
+            </div>
+          </div>
+
+          <div class="section-hd">
+            <div class="section-title">Posiciones abiertas</div>
+            <span class="section-link">Ver todas →</span>
+          </div>
+          <div class="table-wrap" style="margin-bottom:18px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activo</th><th>Cartera</th><th>Broker</th>
+                  <th>Días</th><th>Capital USD</th><th>Valor actual</th>
+                  <th>P&L USD</th><th>P&L %</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-asset">BTC</td>
+                  <td><span class="badge badge-slate">Cryptos</span></td>
+                  <td class="muted td-mono">Binance</td>
+                  <td class="muted td-mono">847d</td>
+                  <td class="td-mono">$8.420</td>
+                  <td class="td-mono">$12.340</td>
+                  <td class="pos td-mono">+$3.920</td>
+                  <td class="pos td-mono">+46.6%</td>
+                </tr>
+                <tr>
+                  <td class="td-asset">GGAL</td>
+                  <td><span class="badge badge-slate">Cedears</span></td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">312d</td>
+                  <td class="td-mono">$3.100</td>
+                  <td class="td-mono">$4.250</td>
+                  <td class="pos td-mono">+$1.150</td>
+                  <td class="pos td-mono">+37.1%</td>
+                </tr>
+                <tr>
+                  <td class="td-asset">YPF</td>
+                  <td><span class="badge badge-slate">Acciones</span></td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">180d</td>
+                  <td class="td-mono">$1.800</td>
+                  <td class="td-mono">$1.650</td>
+                  <td class="neg td-mono">−$150</td>
+                  <td class="neg td-mono">−8.3%</td>
+                </tr>
+                <tr>
+                  <td class="td-asset">MELI</td>
+                  <td><span class="badge badge-slate">Jubilación</span></td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">520d</td>
+                  <td class="td-mono">$5.200</td>
+                  <td class="td-mono">$7.100</td>
+                  <td class="pos td-mono">+$1.900</td>
+                  <td class="pos td-mono">+36.5%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-hd">
+            <div class="section-title">Estrategias DCA activas</div>
+            <span class="section-link">Ver todas →</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(255,184,48,0.12);color:var(--orange);">₿</div>
+                  <div>
+                    <div class="dca-card-name">BTC</div>
+                    <div class="dca-card-full">Bitcoin</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● live</span>
+              </div>
+              <div class="dca-card-stats">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$4.200</div></div>
+                <div><div class="dca-stat-label">P&L</div><div class="dca-stat-value pos">+$890</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:68%"></div></div>
+                <div class="progress-label">+21.2% rendimiento</div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(167,139,250,0.12);color:var(--violet);">Ξ</div>
+                  <div>
+                    <div class="dca-card-name">ETH</div>
+                    <div class="dca-card-full">Ethereum</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● live</span>
+              </div>
+              <div class="dca-card-stats">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$2.800</div></div>
+                <div><div class="dca-stat-label">P&L</div><div class="dca-stat-value pos">+$320</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:44%;background:var(--violet)"></div></div>
+                <div class="progress-label">+11.4% rendimiento</div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(61,159,255,0.12);color:var(--blue);">G</div>
+                  <div>
+                    <div class="dca-card-name">GGAL</div>
+                    <div class="dca-card-full">Galicia ADR</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● live</span>
+              </div>
+              <div class="dca-card-stats">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$2.400</div></div>
+                <div><div class="dca-stat-label">P&L</div><div class="dca-stat-value pos">+$640</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%;background:var(--blue)"></div></div>
+                <div class="progress-label">+26.7% rendimiento</div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(255,69,102,0.1);color:var(--red);">Y</div>
+                  <div>
+                    <div class="dca-card-name">YPF</div>
+                    <div class="dca-card-full">YPF S.A.</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● live</span>
+              </div>
+              <div class="dca-card-stats">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$1.800</div></div>
+                <div><div class="dca-stat-label">P&L</div><div class="dca-stat-value neg">−$120</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:18%;background:var(--red)"></div></div>
+                <div class="progress-label">−6.7% rendimiento</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S02 — TRADING: POSICIONES
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s02">
+  <div class="screen-meta">
+    <div class="screen-num">// S02</div>
+    <div class="screen-name">Trading — Posiciones</div>
+    <div class="screen-desc">Lista de posiciones de una cartera. Filtros por estado (abiertas / cerradas).</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// trading</div>
+        <div class="app-nav-item"><span class="nav-icon">◈</span> Cryptos</div>
+        <div class="app-nav-item active"><span class="nav-icon">◉</span> Acciones ARG</div>
+        <div class="app-nav-item"><span class="nav-icon">◫</span> Cedears CP</div>
+        <div class="app-nav-item"><span class="nav-icon">◧</span> Jubilación</div>
+        <div class="app-nav-item"><span class="nav-icon">◪</span> FCI USD</div>
+        <div class="app-nav-item"><span class="nav-icon">◩</span> Renta Fija</div>
+        <div class="app-nav-section">// dca</div>
+        <div class="app-nav-item"><span class="nav-icon">↻</span> Estrategias</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">∿</span> CCL</div>
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-breadcrumb">
+              <span>Trading</span><span class="sep">›</span><span class="crumb-active">Acciones ARG</span>
+            </div>
+          </div>
+          <div class="topbar-actions">
+            <div class="ccl-pill">
+              <span class="ccl-label">CCL</span>
+              <span class="ccl-val">$1.218,50</span>
+            </div>
+            <button class="btn btn-primary">+ Nueva posición</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="metrics metrics-3" style="margin-bottom:18px;">
+            <div class="card">
+              <div class="card-label">Capital invertido</div>
+              <div class="card-value">$18.400</div>
+              <div class="card-sub">USD · 8 posiciones</div>
+            </div>
+            <div class="card">
+              <div class="card-label">P&L no realizado</div>
+              <div class="card-value pos">+$2.810</div>
+              <div class="card-sub pos">+15.3%</div>
+            </div>
+            <div class="card">
+              <div class="card-label">P&L realizado</div>
+              <div class="card-value pos">+$1.240</div>
+              <div class="card-sub muted">histórico cerradas</div>
+            </div>
+          </div>
+
+          <div class="section-hd">
+            <div class="tabs" style="margin-bottom:0">
+              <div class="tab active">Abiertas (8)</div>
+              <div class="tab">Cerradas (3)</div>
+              <div class="tab">Todas (11)</div>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <button class="btn btn-ghost" style="font-size:11px;">↑↓ Ordenar</button>
+              <button class="btn btn-ghost" style="font-size:11px;">⊟ Filtrar</button>
+            </div>
+          </div>
+
+          <div class="table-wrap" style="margin-top:12px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>Activo</th><th>Broker</th><th>Apertura</th>
+                  <th>Días</th><th>Unidades</th><th>Precio prom.</th>
+                  <th>Precio actual</th><th>Capital USD</th><th>P&L USD</th><th>P&L %</th><th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-asset">GGAL</td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">12/03/24</td>
+                  <td class="muted td-mono">312d</td>
+                  <td class="td-mono">240</td>
+                  <td class="td-mono">$12,92</td>
+                  <td class="td-mono">$17.71</td>
+                  <td class="td-mono">$3.100</td>
+                  <td class="pos td-mono">+$1.150</td>
+                  <td class="pos td-mono">+37.1%</td>
+                  <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px;">→</button></td>
+                </tr>
+                <tr>
+                  <td class="td-asset">YPF</td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">05/10/24</td>
+                  <td class="muted td-mono">180d</td>
+                  <td class="td-mono">150</td>
+                  <td class="td-mono">$12,00</td>
+                  <td class="td-mono">$11.00</td>
+                  <td class="td-mono">$1.800</td>
+                  <td class="neg td-mono">−$150</td>
+                  <td class="neg td-mono">−8.3%</td>
+                  <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px;">→</button></td>
+                </tr>
+                <tr>
+                  <td class="td-asset">MELI</td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">20/09/23</td>
+                  <td class="muted td-mono">520d</td>
+                  <td class="td-mono">30</td>
+                  <td class="td-mono">$173,33</td>
+                  <td class="td-mono">$236,67</td>
+                  <td class="td-mono">$5.200</td>
+                  <td class="pos td-mono">+$1.900</td>
+                  <td class="pos td-mono">+36.5%</td>
+                  <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px;">→</button></td>
+                </tr>
+                <tr>
+                  <td class="td-asset">BBAR</td>
+                  <td class="muted td-mono">IOL</td>
+                  <td class="muted td-mono">01/02/25</td>
+                  <td class="muted td-mono">63d</td>
+                  <td class="td-mono">500</td>
+                  <td class="td-mono">$8,60</td>
+                  <td class="td-mono">$9.80</td>
+                  <td class="td-mono">$4.300</td>
+                  <td class="pos td-mono">+$600</td>
+                  <td class="pos td-mono">+14.0%</td>
+                  <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:11px;">→</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S03 — POSICIÓN DETALLE
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s03">
+  <div class="screen-meta">
+    <div class="screen-num">// S03</div>
+    <div class="screen-name">Posición Detalle</div>
+    <div class="screen-desc">Vista de una posición individual con todos sus trades y métricas calculadas.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// trading</div>
+        <div class="app-nav-item"><span class="nav-icon">◉</span> Acciones ARG</div>
+        <div class="app-nav-item sub active">↳ GGAL · Posición</div>
+        <div class="app-nav-item"><span class="nav-icon">◫</span> Cedears CP</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-breadcrumb">
+              <span>Acciones ARG</span><span class="sep">›</span><span class="crumb-active">GGAL #POS-0042</span>
+            </div>
+            <span class="badge badge-green">● Abierta</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary">+ Add trade</button>
+            <button class="btn btn-danger">⊗ Cerrar</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:10px;margin-bottom:18px;">
+            <div class="card">
+              <div class="card-label">Capital invertido</div>
+              <div class="card-value">$3.100</div>
+              <div class="card-sub">USD · 240 ud.</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Precio promedio</div>
+              <div class="card-value">$12,92</div>
+              <div class="card-sub">USD por unidad</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Precio actual</div>
+              <div class="card-value">$17,71</div>
+              <div class="card-sub" style="color:var(--green)">+0.8% hoy</div>
+            </div>
+            <div class="card">
+              <div class="card-label">P&L USD</div>
+              <div class="card-value pos">+$1.150</div>
+              <div class="card-sub pos">+37.1%</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Días abierta</div>
+              <div class="card-value">312</div>
+              <div class="card-sub">desde 12/03/2024</div>
+            </div>
+          </div>
+
+          <!-- Chart area -->
+          <div class="chart-wrap" style="margin-bottom:16px;">
+            <div class="chart-header">
+              <div>
+                <div class="chart-label">Evolución de precio</div>
+                <div class="chart-value">$17,71</div>
+              </div>
+              <div class="period-btns">
+                <div class="period-btn">1M</div>
+                <div class="period-btn">3M</div>
+                <div class="period-btn active">6M</div>
+                <div class="period-btn">1A</div>
+                <div class="period-btn">Máx</div>
+              </div>
+            </div>
+            <svg class="chart" height="80" viewBox="0 0 1000 80">
+              <defs>
+                <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#00dc80" stop-opacity="0.18"/>
+                  <stop offset="100%" stop-color="#00dc80" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,68 L80,62 L180,55 L260,60 L360,48 L430,50 L520,40 L600,35 L680,28 L760,22 L840,18 L920,14 L1000,12 L1000,80 L0,80 Z" fill="url(#g1)"/>
+              <path d="M0,68 L80,62 L180,55 L260,60 L360,48 L430,50 L520,40 L600,35 L680,28 L760,22 L840,18 L920,14 L1000,12" fill="none" stroke="#00dc80" stroke-width="1.8" stroke-linejoin="round"/>
+              <line x1="0" y1="80" x2="1000" y2="80" stroke="var(--border)" stroke-width="1"/>
+            </svg>
+          </div>
+
+          <div class="section-hd">
+            <div class="section-title">Trades</div>
+            <button class="btn btn-ghost" style="font-size:11px;">+ Agregar trade</button>
+          </div>
+
+          <div class="trade-list">
+            <div class="trade-item">
+              <div class="trade-type-pill trade-buy">BUY</div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">12/03/2024</div></div>
+                <div class="trade-field"><div class="trade-field-label">Unidades</div><div class="trade-field-val">100</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio ARS</div><div class="trade-field-val">$14.890,00</div></div>
+                <div class="trade-field"><div class="trade-field-label">CCL</div><div class="trade-field-val">$1.150,20</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio USD</div><div class="trade-field-val">$12,95</div></div>
+                <div class="trade-field"><div class="trade-field-label">Total USD</div><div class="trade-field-val">$1.295</div></div>
+                <div class="trade-field"><div class="trade-field-label">Broker</div><div class="trade-field-val muted">IOL</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;color:var(--red)">⊗</button>
+              </div>
+            </div>
+            <div class="trade-item">
+              <div class="trade-type-pill trade-buy">BUY</div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">18/06/2024</div></div>
+                <div class="trade-field"><div class="trade-field-label">Unidades</div><div class="trade-field-val">80</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio ARS</div><div class="trade-field-val">$15.320,00</div></div>
+                <div class="trade-field"><div class="trade-field-label">CCL</div><div class="trade-field-val">$1.180,60</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio USD</div><div class="trade-field-val">$12,98</div></div>
+                <div class="trade-field"><div class="trade-field-label">Total USD</div><div class="trade-field-val">$1.038</div></div>
+                <div class="trade-field"><div class="trade-field-label">Broker</div><div class="trade-field-val muted">IOL</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;color:var(--red)">⊗</button>
+              </div>
+            </div>
+            <div class="trade-item">
+              <div class="trade-type-pill trade-buy">BUY</div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">02/11/2024</div></div>
+                <div class="trade-field"><div class="trade-field-label">Unidades</div><div class="trade-field-val">60</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio ARS</div><div class="trade-field-val">$13.840,00</div></div>
+                <div class="trade-field"><div class="trade-field-label">CCL</div><div class="trade-field-val">$1.200,10</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio USD</div><div class="trade-field-val">$11,53</div></div>
+                <div class="trade-field"><div class="trade-field-label">Total USD</div><div class="trade-field-val">$692</div></div>
+                <div class="trade-field"><div class="trade-field-label">Broker</div><div class="trade-field-val muted">IOL</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;color:var(--red)">⊗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S04 — MODAL NUEVO TRADE
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s04">
+  <div class="screen-meta">
+    <div class="screen-num">// S04</div>
+    <div class="screen-name">Modal — Nuevo Trade</div>
+    <div class="screen-desc">Modal para agregar un trade de compra o venta a una posición existente.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// trading</div>
+        <div class="app-nav-item"><span class="nav-icon">◉</span> Acciones ARG</div>
+        <div class="app-nav-item sub active">↳ GGAL · Trades</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main" style="position:relative;">
+        <div class="topbar dim">
+          <div class="topbar-left">
+            <div class="topbar-breadcrumb">
+              <span>Acciones ARG</span><span class="sep">›</span><span class="crumb-active">GGAL #POS-0042</span>
+            </div>
+          </div>
+        </div>
+        <div class="body dim" style="opacity:0.06"></div>
+
+        <!-- Modal -->
+        <div class="modal-overlay">
+          <div class="modal">
+            <div class="modal-header">
+              <div class="modal-eyebrow">GGAL · Posición #0042</div>
+              <div class="modal-title">Nuevo Trade</div>
+              <div class="modal-sub">Registrá una compra o venta sobre esta posición</div>
+            </div>
+
+            <div style="display:flex;gap:6px;margin-bottom:16px;">
+              <button class="btn btn-primary" style="flex:1;justify-content:center;">↑ Compra</button>
+              <button class="btn btn-secondary" style="flex:1;justify-content:center;color:var(--red-text);border-color:var(--red)">↓ Venta</button>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Fecha del trade</div>
+                <input class="form-input" type="text" value="2026-04-05">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Broker</div>
+                <select class="form-select"><option>IOL</option><option>Binance</option></select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Unidades</div>
+                <input class="form-input" type="text" value="50">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Precio unitario (ARS)</div>
+                <input class="form-input" type="text" value="21.580,00">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">CCL aplicado</div>
+                <input class="form-input auto-filled" type="text" value="$1.218,50">
+                <div class="form-hint">↑ Auto-completado por fecha</div>
+              </div>
+              <div class="form-group">
+                <div class="form-label">Comisión (%)</div>
+                <input class="form-input" type="text" value="0.60">
+              </div>
+            </div>
+
+            <div class="preview-box">
+              <div class="preview-row">
+                <span class="pv-label">Precio USD</span>
+                <span class="pv-val">$17,71</span>
+              </div>
+              <div class="preview-row">
+                <span class="pv-label">Subtotal</span>
+                <span class="pv-val">$885,50</span>
+              </div>
+              <div class="preview-row">
+                <span class="pv-label">Comisión IOL</span>
+                <span class="pv-val">$5,31</span>
+              </div>
+              <hr class="preview-divider">
+              <div class="preview-row preview-total">
+                <span class="pv-label">Total USD</span>
+                <span class="pv-val">$890,81</span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary">Cancelar</button>
+              <button class="btn btn-primary">Registrar trade →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S05 — DCA: ESTRATEGIAS
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s05">
+  <div class="screen-meta">
+    <div class="screen-num">// S05</div>
+    <div class="screen-name">DCA — Estrategias</div>
+    <div class="screen-desc">Lista de todas las estrategias DCA activas e inactivas con métricas clave.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// dca</div>
+        <div class="app-nav-item active"><span class="nav-icon">↻</span> Estrategias</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-title">Estrategias DCA</div>
+          </div>
+          <div class="topbar-actions">
+            <div class="tabs" style="margin-bottom:0;">
+              <div class="tab active">Activas (4)</div>
+              <div class="tab">Cerradas (1)</div>
+            </div>
+            <button class="btn btn-primary">+ Nueva estrategia</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div class="metrics metrics-3" style="margin-bottom:18px;">
+            <div class="card">
+              <div class="card-label">Capital total DCA</div>
+              <div class="card-value">$11.200</div>
+              <div class="card-sub">USD acumulado</div>
+            </div>
+            <div class="card">
+              <div class="card-label">P&L total</div>
+              <div class="card-value pos">+$1.730</div>
+              <div class="card-sub pos">+15.4% promedio</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Entradas totales</div>
+              <div class="card-value">34</div>
+              <div class="card-sub">en 4 estrategias</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(255,184,48,0.12);color:var(--orange);font-size:18px;">₿</div>
+                  <div>
+                    <div class="dca-card-name">BTC</div>
+                    <div class="dca-card-full">Bitcoin · Binance · 12 entradas</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$4.200</div></div>
+                <div><div class="dca-stat-label">P&L USD</div><div class="dca-stat-value pos">+$890</div></div>
+                <div><div class="dca-stat-label">P&L %</div><div class="dca-stat-value pos">+21.2%</div></div>
+                <div><div class="dca-stat-label">Inicio</div><div class="dca-stat-value" style="font-size:11px;color:var(--text-3)">Jan 2023</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:68%"></div></div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(167,139,250,0.12);color:var(--violet);font-size:18px;">Ξ</div>
+                  <div>
+                    <div class="dca-card-name">ETH</div>
+                    <div class="dca-card-full">Ethereum · BingX · 8 entradas</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$2.800</div></div>
+                <div><div class="dca-stat-label">P&L USD</div><div class="dca-stat-value pos">+$320</div></div>
+                <div><div class="dca-stat-label">P&L %</div><div class="dca-stat-value pos">+11.4%</div></div>
+                <div><div class="dca-stat-label">Inicio</div><div class="dca-stat-value" style="font-size:11px;color:var(--text-3)">Mar 2023</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:44%;background:var(--violet)"></div></div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(61,159,255,0.12);color:var(--blue);font-size:16px;font-weight:800;">G</div>
+                  <div>
+                    <div class="dca-card-name">GGAL</div>
+                    <div class="dca-card-full">Galicia · IOL · 8 entradas</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$2.400</div></div>
+                <div><div class="dca-stat-label">P&L USD</div><div class="dca-stat-value pos">+$640</div></div>
+                <div><div class="dca-stat-label">P&L %</div><div class="dca-stat-value pos">+26.7%</div></div>
+                <div><div class="dca-stat-label">Inicio</div><div class="dca-stat-value" style="font-size:11px;color:var(--text-3)">Jun 2023</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:55%;background:var(--blue)"></div></div>
+              </div>
+            </div>
+
+            <div class="dca-card">
+              <div class="dca-card-head">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="dca-card-icon" style="background:rgba(255,69,102,0.1);color:var(--red);font-size:16px;font-weight:800;">Y</div>
+                  <div>
+                    <div class="dca-card-name">YPF</div>
+                    <div class="dca-card-full">YPF S.A. · IOL · 6 entradas</div>
+                  </div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+                <div><div class="dca-stat-label">Capital</div><div class="dca-stat-value">$1.800</div></div>
+                <div><div class="dca-stat-label">P&L USD</div><div class="dca-stat-value neg">−$120</div></div>
+                <div><div class="dca-stat-label">P&L %</div><div class="dca-stat-value neg">−6.7%</div></div>
+                <div><div class="dca-stat-label">Inicio</div><div class="dca-stat-value" style="font-size:11px;color:var(--text-3)">Sep 2024</div></div>
+              </div>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:18%;background:var(--red)"></div></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S06 — DCA: ESTRATEGIA DETALLE
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s06">
+  <div class="screen-meta">
+    <div class="screen-num">// S06</div>
+    <div class="screen-name">DCA — Estrategia Detalle</div>
+    <div class="screen-desc">Vista de una estrategia DCA individual con gráfico de acumulación y listado de entradas.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// dca</div>
+        <div class="app-nav-item active"><span class="nav-icon">↻</span> Estrategias</div>
+        <div class="app-nav-item sub active">↳ BTC</div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-breadcrumb">
+              <span>DCA</span><span class="sep">›</span><span class="crumb-active">BTC — Bitcoin</span>
+            </div>
+            <span class="badge badge-green">● activa</span>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary">+ Nueva entrada</button>
+            <button class="btn btn-danger">⊗ Cerrar estrategia</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px;">
+            <div class="card">
+              <div class="card-label">Capital acumulado</div>
+              <div class="card-value">$4.200</div>
+              <div class="card-sub">USD · 12 entradas</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Valor actual</div>
+              <div class="card-value">$5.090</div>
+              <div class="card-sub" style="color:var(--green)">+$890 P&L</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Precio prom. DCA</div>
+              <div class="card-value">$41.200</div>
+              <div class="card-sub">USD por BTC</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Precio actual</div>
+              <div class="card-value">$67.800</div>
+              <div class="card-sub pos">+0.6% hoy</div>
+            </div>
+            <div class="card">
+              <div class="card-label">Días activa</div>
+              <div class="card-value">826</div>
+              <div class="card-sub">desde Jan 2023</div>
+            </div>
+          </div>
+
+          <div class="chart-wrap">
+            <div class="chart-header">
+              <div>
+                <div class="chart-label">Acumulación de capital (USD)</div>
+                <div class="chart-value">$4.200</div>
+                <div class="chart-change pos">+$890 · +21.2%</div>
+              </div>
+            </div>
+            <svg class="chart" height="90" viewBox="0 0 1000 90">
+              <defs>
+                <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#ffb830" stop-opacity="0.2"/>
+                  <stop offset="100%" stop-color="#ffb830" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <!-- Capital line -->
+              <path d="M0,85 L80,82 L160,79 L240,76 L320,72 L420,68 L500,64 L580,60 L660,55 L740,50 L840,44 L920,40 L1000,36 L1000,90 L0,90Z" fill="url(#g2)"/>
+              <path d="M0,85 L80,82 L160,79 L240,76 L320,72 L420,68 L500,64 L580,60 L660,55 L740,50 L840,44 L920,40 L1000,36" fill="none" stroke="#ffb830" stroke-width="2" stroke-linejoin="round"/>
+              <!-- Valor line -->
+              <path d="M0,80 L80,75 L160,72 L240,65 L320,60 L420,50 L500,40 L580,35 L660,28 L740,22 L840,16 L920,12 L1000,8" fill="none" stroke="#00dc80" stroke-width="1.5" stroke-linejoin="round" stroke-dasharray="4,3"/>
+              <!-- Entry dots -->
+              <circle cx="80" cy="82" r="3" fill="#ffb830"/>
+              <circle cx="240" cy="76" r="3" fill="#ffb830"/>
+              <circle cx="420" cy="68" r="3" fill="#ffb830"/>
+              <circle cx="580" cy="60" r="3" fill="#ffb830"/>
+              <circle cx="740" cy="50" r="3" fill="#ffb830"/>
+              <circle cx="920" cy="40" r="3" fill="#ffb830"/>
+              <line x1="0" y1="90" x2="1000" y2="90" stroke="var(--border)" stroke-width="1"/>
+            </svg>
+          </div>
+
+          <div class="section-hd" style="margin-top:16px;">
+            <div class="section-title">Entradas (12)</div>
+            <button class="btn btn-ghost" style="font-size:11px;">+ Nueva entrada</button>
+          </div>
+
+          <div>
+            <div class="entry-item">
+              <div class="entry-type-dot entry-open"></div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Tipo</div><div class="trade-field-val" style="color:var(--accent)">Apertura</div></div>
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">15/01/2023</div></div>
+                <div class="trade-field"><div class="trade-field-label">Monto USD</div><div class="trade-field-val">$300</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio BTC</div><div class="trade-field-val">$21.500</div></div>
+                <div class="trade-field"><div class="trade-field-label">BTC recibidos</div><div class="trade-field-val">0.01395</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+              </div>
+            </div>
+            <div class="entry-item">
+              <div class="entry-type-dot entry-add"></div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Tipo</div><div class="trade-field-val" style="color:var(--blue)">Incremento</div></div>
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">20/03/2023</div></div>
+                <div class="trade-field"><div class="trade-field-label">Monto USD</div><div class="trade-field-val">$400</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio BTC</div><div class="trade-field-val">$27.800</div></div>
+                <div class="trade-field"><div class="trade-field-label">BTC recibidos</div><div class="trade-field-val">0.01439</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+              </div>
+            </div>
+            <div class="entry-item">
+              <div class="entry-type-dot entry-add"></div>
+              <div class="trade-data">
+                <div class="trade-field"><div class="trade-field-label">Tipo</div><div class="trade-field-val" style="color:var(--blue)">Incremento</div></div>
+                <div class="trade-field"><div class="trade-field-label">Fecha</div><div class="trade-field-val">12/06/2023</div></div>
+                <div class="trade-field"><div class="trade-field-label">Monto USD</div><div class="trade-field-val">$350</div></div>
+                <div class="trade-field"><div class="trade-field-label">Precio BTC</div><div class="trade-field-val">$30.200</div></div>
+                <div class="trade-field"><div class="trade-field-label">BTC recibidos</div><div class="trade-field-val">0.01159</div></div>
+              </div>
+              <div class="trade-actions">
+                <button class="btn btn-ghost" style="padding:3px 7px;font-size:11px;">✎</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S07 — MODAL NUEVA ENTRADA DCA
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s07">
+  <div class="screen-meta">
+    <div class="screen-num">// S07</div>
+    <div class="screen-name">Modal — Nueva Entrada DCA</div>
+    <div class="screen-desc">Modal para registrar una entrada en una estrategia DCA. Soporta Apertura, Incremento y Cierre parcial.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-section">// dca</div>
+        <div class="app-nav-item active"><span class="nav-icon">↻</span> Estrategias</div>
+        <div class="app-nav-item sub active">↳ BTC · Entradas</div>
+      </nav>
+
+      <div class="app-main" style="position:relative;">
+        <div class="topbar dim"><div class="topbar-title">BTC — Estrategia DCA</div></div>
+        <div class="body dim" style="opacity:0.06"></div>
+
+        <div class="modal-overlay">
+          <div class="modal">
+            <div class="modal-header">
+              <div class="modal-eyebrow">BTC · DCA Estrategia</div>
+              <div class="modal-title">Nueva Entrada</div>
+              <div class="modal-sub">Registrá una apertura, incremento o cierre</div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">Tipo de entrada</div>
+              <div class="tabs" style="margin-bottom:0;">
+                <div class="tab active">Apertura</div>
+                <div class="tab">Incremento</div>
+                <div class="tab">Cierre parcial</div>
+              </div>
+            </div>
+
+            <div class="form-row" style="margin-top:12px;">
+              <div class="form-group">
+                <div class="form-label">Fecha</div>
+                <input class="form-input" type="text" value="2026-04-05">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Broker / Exchange</div>
+                <select class="form-select"><option>Binance</option><option>BingX</option></select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="form-label">Monto invertido (USD)</div>
+                <input class="form-input" type="text" value="500">
+              </div>
+              <div class="form-group">
+                <div class="form-label">Precio BTC (USD) — opcional</div>
+                <input class="form-input" type="text" placeholder="67.800">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <div class="form-label">Notas (opcional)</div>
+              <input class="form-input" type="text" placeholder="Compra mensual programada">
+            </div>
+
+            <div class="preview-box">
+              <div class="preview-row">
+                <span class="pv-label">Tipo</span>
+                <span class="pv-val" style="color:var(--accent)">Apertura</span>
+              </div>
+              <div class="preview-row">
+                <span class="pv-label">Capital acumulado post</span>
+                <span class="pv-val">$4.700</span>
+              </div>
+              <div class="preview-row">
+                <span class="pv-label">Entradas totales</span>
+                <span class="pv-val">13</span>
+              </div>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary">Cancelar</button>
+              <button class="btn btn-primary">Registrar entrada →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S08 — CCL HISTÓRICO
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s08">
+  <div class="screen-meta">
+    <div class="screen-num">// S08</div>
+    <div class="screen-name">CCL Histórico</div>
+    <div class="screen-desc">Historial del tipo de cambio CCL (Contado con Liquidación). Permite carga manual y sync desde Ambito.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item active"><span class="nav-icon">∿</span> CCL</div>
+          <div class="app-nav-item"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-title">CCL Histórico</div>
+          </div>
+          <div class="topbar-actions">
+            <button class="btn btn-secondary">+ Carga manual</button>
+            <button class="btn btn-sync">↻ Sync Ambito</button>
+          </div>
+        </div>
+
+        <div class="body">
+          <div style="display:flex;gap:12px;margin-bottom:18px;">
+            <div class="ccl-hero">
+              <div class="ccl-hero-label">CCL Hoy</div>
+              <div class="ccl-hero-value">$1.218,50</div>
+              <div class="ccl-hero-chg pos">+$3,20 · +0.3%</div>
+            </div>
+            <div class="ccl-hero">
+              <div class="ccl-hero-label">Último mes</div>
+              <div class="ccl-hero-value">$1.192,80</div>
+              <div class="ccl-hero-chg muted" style="font-size:12px;">Hace 30 días</div>
+            </div>
+            <div class="ccl-hero">
+              <div class="ccl-hero-label">Var. 30 días</div>
+              <div class="ccl-hero-value pos" style="font-size:28px;">+2.1%</div>
+              <div class="ccl-hero-chg muted" style="font-size:12px;">$25,70 absoluto</div>
+            </div>
+            <div style="flex:1;">
+              <div class="chart-wrap" style="height:100%;margin-bottom:0;">
+                <div class="chart-header">
+                  <div>
+                    <div class="chart-label">Evolución CCL</div>
+                  </div>
+                  <div class="period-btns" style="margin-bottom:0">
+                    <div class="period-btn">1M</div>
+                    <div class="period-btn active">3M</div>
+                    <div class="period-btn">6M</div>
+                    <div class="period-btn">1A</div>
+                  </div>
+                </div>
+                <svg class="chart" height="60" viewBox="0 0 600 60">
+                  <defs>
+                    <linearGradient id="g3" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#00dc80" stop-opacity="0.15"/>
+                      <stop offset="100%" stop-color="#00dc80" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M0,50 L60,48 L120,45 L200,42 L280,38 L360,32 L440,27 L520,22 L600,18 L600,60 L0,60Z" fill="url(#g3)"/>
+                  <path d="M0,50 L60,48 L120,45 L200,42 L280,38 L360,32 L440,27 L520,22 L600,18" fill="none" stroke="#00dc80" stroke-width="1.5" stroke-linejoin="round"/>
+                  <line x1="0" y1="60" x2="600" y2="60" stroke="var(--border)" stroke-width="1"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-hd">
+            <div class="section-title">Historial</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input class="form-input" style="width:120px;padding:4px 8px;font-size:11px;" type="text" placeholder="desde">
+              <input class="form-input" style="width:120px;padding:4px 8px;font-size:11px;" type="text" placeholder="hasta">
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Fecha</th><th>CCL (ARS/USD)</th><th>Variación</th><th>Fuente</th><th>Guardado</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="td-mono">2026-04-05</td>
+                  <td class="td-mono td-strong">$1.218,50</td>
+                  <td class="pos td-mono">+$3,20 (+0.3%)</td>
+                  <td class="muted" style="font-size:11.5px;">Ambito API</td>
+                  <td class="muted td-mono" style="font-size:11px;">14:32</td>
+                </tr>
+                <tr>
+                  <td class="td-mono">2026-04-04</td>
+                  <td class="td-mono td-strong">$1.215,30</td>
+                  <td class="neg td-mono">−$1,80 (−0.1%)</td>
+                  <td class="muted" style="font-size:11.5px;">Ambito API</td>
+                  <td class="muted td-mono" style="font-size:11px;">18:05</td>
+                </tr>
+                <tr>
+                  <td class="td-mono">2026-04-03</td>
+                  <td class="td-mono td-strong">$1.217,10</td>
+                  <td class="pos td-mono">+$5,40 (+0.4%)</td>
+                  <td class="muted" style="font-size:11.5px;">Ambito API</td>
+                  <td class="muted td-mono" style="font-size:11px;">17:58</td>
+                </tr>
+                <tr>
+                  <td class="td-mono">2026-04-02</td>
+                  <td class="td-mono td-strong">$1.211,70</td>
+                  <td class="muted td-mono">0.0%</td>
+                  <td class="muted" style="font-size:11.5px;">Manual</td>
+                  <td class="muted td-mono" style="font-size:11px;">09:15</td>
+                </tr>
+                <tr>
+                  <td class="td-mono">2026-04-01</td>
+                  <td class="td-mono td-strong">$1.211,70</td>
+                  <td class="pos td-mono">+$8,20 (+0.7%)</td>
+                  <td class="muted" style="font-size:11.5px;">Ambito API</td>
+                  <td class="muted td-mono" style="font-size:11px;">18:02</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════
+     S09 — CONFIGURACIÓN
+═══════════════════════════════════════════════ -->
+<div class="screen-wrap" id="s09">
+  <div class="screen-meta">
+    <div class="screen-num">// S09</div>
+    <div class="screen-name">Configuración</div>
+    <div class="screen-desc">Gestión de brokers, activos, APIs externas y comisiones.</div>
+  </div>
+  <div class="frame">
+    <div class="app">
+      <nav class="app-nav">
+        <div class="app-nav-logo">
+          <div class="logo-mark">
+            <svg viewBox="0 0 16 16" fill="none"><path d="M2 12 L6 7 L10 9 L14 3" stroke="#030b14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div>
+            <div class="app-nav-logo-text">Inversiones</div>
+            <span class="app-nav-logo-sub">v1.0 · local</span>
+          </div>
+        </div>
+        <div class="app-nav-spacer"></div>
+        <div class="app-nav-footer">
+          <div class="app-nav-item"><span class="nav-icon">∿</span> CCL</div>
+          <div class="app-nav-item active"><span class="nav-icon">⚙</span> Config</div>
+        </div>
+      </nav>
+
+      <div class="app-main">
+        <div class="topbar">
+          <div class="topbar-left">
+            <div class="topbar-title">Configuración</div>
+          </div>
+        </div>
+
+        <div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+
+          <!-- Brokers -->
+          <div>
+            <div class="settings-section-title">Brokers</div>
+            <div class="broker-row">
+              <div class="broker-icon">🏦</div>
+              <div class="broker-name">InvertirOnline (IOL)</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input class="inline-edit" value="0.60%">
+                <span class="muted" style="font-size:11px;">comisión</span>
+                <div class="status-dot dot-green dot-pulse"></div>
+              </div>
+            </div>
+            <div class="broker-row">
+              <div class="broker-icon">🟡</div>
+              <div class="broker-name">Binance</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input class="inline-edit" value="0.10%">
+                <span class="muted" style="font-size:11px;">comisión</span>
+                <div class="status-dot dot-green dot-pulse"></div>
+              </div>
+            </div>
+            <div class="broker-row">
+              <div class="broker-icon">🔵</div>
+              <div class="broker-name">BingX</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input class="inline-edit" value="0.05%">
+                <span class="muted" style="font-size:11px;">comisión</span>
+                <div class="status-dot dot-green dot-pulse"></div>
+              </div>
+            </div>
+            <div class="broker-row">
+              <div class="broker-icon">⚖️</div>
+              <div class="broker-name">Balanz</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <input class="inline-edit" value="0.50%">
+                <span class="muted" style="font-size:11px;">comisión</span>
+                <div class="status-dot dot-slate"></div>
+              </div>
+            </div>
+            <button class="btn btn-ghost" style="margin-top:8px;font-size:11.5px;">+ Agregar broker</button>
+          </div>
+
+          <!-- Integraciones -->
+          <div>
+            <div class="settings-section-title">APIs externas</div>
+            <div class="int-card" style="margin-bottom:8px;">
+              <div class="int-head">
+                <div>
+                  <div class="int-name">CoinGecko</div>
+                  <div class="int-desc">Precios de crypto en tiempo real y histórico</div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div class="int-meta">API key: <span style="color:var(--text-2);">cg-••••••••••••ABCD</span> · Free tier · 30 req/min</div>
+              <div class="int-actions">
+                <button class="btn btn-sync" style="font-size:11px;padding:5px 10px;">↻ Probar</button>
+                <button class="btn btn-ghost" style="font-size:11px;">✎ Editar key</button>
+              </div>
+            </div>
+
+            <div class="int-card" style="margin-bottom:8px;">
+              <div class="int-head">
+                <div>
+                  <div class="int-name">InvertirOnline (IOL)</div>
+                  <div class="int-desc">Precios de acciones y cedears argentinos</div>
+                </div>
+                <span class="badge badge-green">● activa</span>
+              </div>
+              <div class="int-meta">Usuario: <span style="color:var(--text-2);">rodri@mail.com</span> · Token expira: 02/05/26</div>
+              <div class="int-actions">
+                <button class="btn btn-sync" style="font-size:11px;padding:5px 10px;">↻ Probar</button>
+                <button class="btn btn-ghost" style="font-size:11px;">↻ Renovar token</button>
+              </div>
+            </div>
+
+            <div class="int-card">
+              <div class="int-head">
+                <div>
+                  <div class="int-name">Ambito Financiero</div>
+                  <div class="int-desc">Scraping de CCL diario</div>
+                </div>
+                <span class="badge badge-orange">● limitada</span>
+              </div>
+              <div class="int-meta">URL configurada en <span style="color:var(--accent);font-family:var(--mono);font-size:10px;">config/ccl-sources.json</span></div>
+              <div class="int-actions">
+                <button class="btn btn-sync" style="font-size:11px;padding:5px 10px;">↻ Sync ahora</button>
+                <button class="btn btn-ghost" style="font-size:11px;">✎ Config</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('theme-icon').textContent = isDark ? '🌑' : '☀';
+  document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+}
+
+// Scroll-aware sidebar links
+const sections = document.querySelectorAll('.screen-wrap');
+const links = document.querySelectorAll('.page-sidebar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 100) current = s.id;
+  });
+  links.forEach(l => {
+    l.classList.toggle('active-link', l.getAttribute('href') === '#' + current);
+  });
+}, { passive: true });
+</script>
+
+</body>
+</html>

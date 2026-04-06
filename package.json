@@ -1,0 +1,19 @@
+{
+  "name": "app-seguimiento-inversiones",
+  "private": true,
+  "scripts": {
+    "dev:backend": "pnpm --filter backend dev",
+    "dev:frontend": "pnpm --filter frontend dev",
+    "dev:docs": "pnpm --filter website start",
+    "build": "pnpm --filter backend build && pnpm --filter frontend build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "db:migrate": "pnpm --filter backend db:migrate",
+    "db:seed": "pnpm --filter backend db:seed",
+    "db:studio": "pnpm --filter backend db:studio",
+    "db:reset": "pnpm --filter backend db:reset",
+    "db:import-ccl": "pnpm --filter backend db:import-ccl",
+    "db:import-excel": "pnpm --filter backend db:import-excel"
+  }
+}

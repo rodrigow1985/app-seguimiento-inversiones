@@ -1,0 +1,33 @@
+services:
+  docs:
+    build:
+      context: ./website
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    volumes:
+      - ./website/docs:/app/docs
+      - ./website/src:/app/src
+      - ./website/static:/app/static
+      - ./website/docusaurus.config.ts:/app/docusaurus.config.ts
+      - ./website/sidebars.ts:/app/sidebars.ts
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: inversiones
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-localpassword}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d inversiones"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:

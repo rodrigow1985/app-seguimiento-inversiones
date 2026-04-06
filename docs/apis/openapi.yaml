@@ -1,0 +1,2146 @@
+openapi: 3.1.0
+
+info:
+  title: App Seguimiento Inversiones — API
+  version: 1.0.0
+  description: |
+    REST API para la aplicación de seguimiento de inversiones personales.
+    Maneja carteras de trading (posiciones compra/venta) y estrategias DCA,
+    en activos argentinos y crypto, con doble moneda ARS/USD y CCL histórico.
+
+    **Convenciones:**
+    - Montos numéricos devueltos como `string` para preservar precisión decimal
+    - Fechas en ISO 8601: `"2026-04-05"` (date) / `"2026-04-05T14:32:00Z"` (datetime)
+    - Enums en `UPPER_SNAKE_CASE`
+    - Errores en RFC 7807 (`application/problem+json`)
+    - Sin autenticación en v1 (app personal local)
+
+servers:
+  - url: http://localhost:3001/api/v1
+    description: Desarrollo local
+
+tags:
+  - name: Dashboard
+    description: Agregados y resúmenes generales
+  - name: Portfolios
+    description: Gestión de carteras
+  - name: Assets
+    description: Catálogo de activos financieros
+  - name: Prices
+    description: Precios actuales e históricos
+  - name: Brokers
+    description: Gestión de brokers y comisiones
+  - name: Trading — Positions
+    description: Posiciones de compra/venta
+  - name: Trading — Trades
+    description: Trades individuales dentro de posiciones
+  - name: DCA — Strategies
+    description: Estrategias de Dollar Cost Averaging
+  - name: DCA — Entries
+    description: Entradas individuales de estrategias DCA
+  - name: CCL
+    description: Historial del tipo de cambio CCL (ARS/USD)
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
+paths:
+
+  # ── Dashboard ─────────────────────────────────────────────
+  /dashboard:
+    get:
+      tags: [Dashboard]
+      summary: Resumen general del portfolio
+      operationId: getDashboard
+      responses:
+        '200':
+          description: Resumen global calculado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DashboardSummary'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /dashboard/open-positions:
+    get:
+      tags: [Dashboard]
+      summary: Lista de posiciones abiertas con métricas calculadas
+      operationId: getDashboardOpenPositions
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [pnlPct, pnlUsd, capitalUsd, daysOpen]
+            default: pnlPct
+        - $ref: '#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Lista de posiciones abiertas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PositionSummary'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /dashboard/dca-summary:
+    get:
+      tags: [Dashboard]
+      summary: Resumen de estrategias DCA activas
+      operationId: getDashboardDcaSummary
+      responses:
+        '200':
+          description: Lista de estrategias DCA activas con métricas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DcaStrategySummary'
+
+  # ── Portfolios ─────────────────────────────────────────────
+  /portfolios:
+    get:
+      tags: [Portfolios]
+      summary: Lista todas las carteras
+      operationId: listPortfolios
+      responses:
+        '200':
+          description: Lista de carteras
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Portfolio'
+    post:
+      tags: [Portfolios]
+      summary: Crea una cartera nueva
+      operationId: createPortfolio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortfolioCreate'
+      responses:
+        '201':
+          description: Cartera creada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Portfolio'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /portfolios/{id}:
+    get:
+      tags: [Portfolios]
+      summary: Detalle de una cartera con métricas
+      operationId: getPortfolio
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Detalle de cartera
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PortfolioDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Portfolios]
+      summary: Actualiza una cartera
+      operationId: updatePortfolio
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortfolioUpdate'
+      responses:
+        '200':
+          description: Cartera actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Portfolio'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /portfolios/{id}/summary:
+    get:
+      tags: [Portfolios]
+      summary: Resumen P&L de la cartera
+      operationId: getPortfolioSummary
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+      responses:
+        '200':
+          description: Resumen P&L
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PortfolioSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Assets ─────────────────────────────────────────────────
+  /assets:
+    get:
+      tags: [Assets]
+      summary: Lista todos los activos
+      operationId: listAssets
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/AssetType'
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+            default: true
+        - name: search
+          in: query
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+      responses:
+        '200':
+          description: Lista de activos
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Asset'
+    post:
+      tags: [Assets]
+      summary: Crea un activo nuevo
+      operationId: createAsset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetCreate'
+      responses:
+        '201':
+          description: Activo creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Asset'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /assets/{id}:
+    get:
+      tags: [Assets]
+      summary: Detalle de un activo
+      operationId: getAsset
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Activo encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Asset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Assets]
+      summary: Actualiza un activo
+      operationId: updateAsset
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetUpdate'
+      responses:
+        '200':
+          description: Activo actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Asset'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /assets/{id}/price/current:
+    get:
+      tags: [Prices]
+      summary: Precio actual de un activo
+      operationId: getAssetCurrentPrice
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Precio actual
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PricePoint'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '503':
+          $ref: '#/components/responses/PriceUnavailable'
+
+  /assets/{id}/price/history:
+    get:
+      tags: [Prices]
+      summary: Precio histórico de un activo
+      operationId: getAssetPriceHistory
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+        - name: interval
+          in: query
+          schema:
+            type: string
+            enum: [1d, 1w, 1M]
+            default: 1d
+      responses:
+        '200':
+          description: Serie temporal de precios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PriceHistoryPoint'
+                  meta:
+                    $ref: '#/components/schemas/PriceHistoryMeta'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '503':
+          $ref: '#/components/responses/PriceUnavailable'
+
+  # ── Brokers ────────────────────────────────────────────────
+  /brokers:
+    get:
+      tags: [Brokers]
+      summary: Lista todos los brokers
+      operationId: listBrokers
+      responses:
+        '200':
+          description: Lista de brokers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Broker'
+    post:
+      tags: [Brokers]
+      summary: Crea un broker
+      operationId: createBroker
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrokerCreate'
+      responses:
+        '201':
+          description: Broker creado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Broker'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /brokers/{id}:
+    get:
+      tags: [Brokers]
+      summary: Detalle de un broker
+      operationId: getBroker
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Broker encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Broker'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Brokers]
+      summary: Actualiza comisión u otros datos del broker
+      operationId: updateBroker
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BrokerUpdate'
+      responses:
+        '200':
+          description: Broker actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Broker'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  # ── Trading — Positions ────────────────────────────────────
+  /trading/positions:
+    get:
+      tags: [Trading — Positions]
+      summary: Lista posiciones con filtros
+      operationId: listPositions
+      parameters:
+        - name: portfolioId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLOSED]
+        - name: assetId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [pnlPct, pnlUsd, capitalUsd, daysOpen, openedAt]
+            default: pnlPct
+        - $ref: '#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Lista de posiciones
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/PositionSummary'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      tags: [Trading — Positions]
+      summary: Abre una posición nueva con su primer trade
+      operationId: createPosition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PositionCreate'
+            example:
+              portfolioId: "uuid"
+              assetId: "uuid"
+              brokerId: "uuid"
+              trade:
+                tradeDate: "2026-04-05"
+                units: "100"
+                priceNative: "21580.00"
+                notes: "Compra inicial"
+      responses:
+        '201':
+          description: Posición abierta con primer trade
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PositionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '422x':
+          $ref: '#/components/responses/CclNotAvailable'
+
+  /trading/positions/{id}:
+    get:
+      tags: [Trading — Positions]
+      summary: Detalle de una posición con todos sus trades
+      operationId: getPosition
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Posición con trades
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PositionDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /trading/positions/{id}/close:
+    patch:
+      tags: [Trading — Positions]
+      summary: Cierra una posición
+      operationId: closePosition
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [closedAt]
+              properties:
+                closedAt:
+                  type: string
+                  format: date
+                  example: "2026-04-05"
+                notes:
+                  type: string
+                  maxLength: 500
+      responses:
+        '200':
+          description: Posición cerrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      status:
+                        type: string
+                        example: CLOSED
+                      closedAt:
+                        type: string
+                        format: date
+                      pnlRealizedUsd:
+                        type: string
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/PositionAlreadyClosed'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /trading/positions/{id}/pnl:
+    get:
+      tags: [Trading — Positions]
+      summary: P&L calculado en tiempo real de una posición
+      operationId: getPositionPnl
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: P&L calculado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PositionPnl'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Trading — Trades ───────────────────────────────────────
+  /trading/positions/{positionId}/trades:
+    get:
+      tags: [Trading — Trades]
+      summary: Lista trades de una posición
+      operationId: listTrades
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Lista de trades
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Trade'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Trading — Trades]
+      summary: Agrega un trade (BUY o SELL) a una posición
+      operationId: createTrade
+      parameters:
+        - name: positionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeCreate'
+            example:
+              type: "BUY"
+              tradeDate: "2026-04-05"
+              units: "50"
+              priceNative: "21580.00"
+              notes: "Promediando"
+      responses:
+        '201':
+          description: Trade registrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Trade'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/PositionAlreadyClosed'
+        '409x':
+          $ref: '#/components/responses/InsufficientUnits'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '422x':
+          $ref: '#/components/responses/CclNotAvailable'
+
+  /trading/trades/{id}:
+    patch:
+      tags: [Trading — Trades]
+      summary: Corrige un trade existente
+      operationId: updateTrade
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeUpdate'
+      responses:
+        '200':
+          description: Trade actualizado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Trade'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/PositionAlreadyClosed'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Trading — Trades]
+      summary: Elimina un trade
+      operationId: deleteTrade
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Trade eliminado
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/PositionAlreadyClosed'
+
+  # ── DCA — Strategies ───────────────────────────────────────
+  /dca/strategies:
+    get:
+      tags: [DCA — Strategies]
+      summary: Lista estrategias DCA
+      operationId: listDcaStrategies
+      parameters:
+        - name: isActive
+          in: query
+          schema:
+            type: boolean
+        - name: assetId
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [pnlPct, pnlUsd, capitalUsd, startedAt]
+            default: pnlPct
+        - $ref: '#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Lista de estrategias DCA
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DcaStrategySummary'
+    post:
+      tags: [DCA — Strategies]
+      summary: Crea una estrategia DCA nueva
+      operationId: createDcaStrategy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DcaStrategyCreate'
+      responses:
+        '201':
+          description: Estrategia creada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaStrategyDetail'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /dca/strategies/{id}:
+    get:
+      tags: [DCA — Strategies]
+      summary: Detalle de una estrategia con todas sus entradas
+      operationId: getDcaStrategy
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Estrategia con entries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaStrategyDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [DCA — Strategies]
+      summary: Actualiza una estrategia
+      operationId: updateDcaStrategy
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DcaStrategyUpdate'
+      responses:
+        '200':
+          description: Estrategia actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaStrategySummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /dca/strategies/{id}/summary:
+    get:
+      tags: [DCA — Strategies]
+      summary: Métricas calculadas de una estrategia
+      operationId: getDcaStrategySummary
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '200':
+          description: Métricas de la estrategia
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaStrategySummaryMetrics'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── DCA — Entries ──────────────────────────────────────────
+  /dca/strategies/{strategyId}/entries:
+    get:
+      tags: [DCA — Entries]
+      summary: Lista entradas de una estrategia
+      operationId: listDcaEntries
+      parameters:
+        - name: strategyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/DcaEntryType'
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: asc
+      responses:
+        '200':
+          description: Lista de entradas
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DcaEntry'
+    post:
+      tags: [DCA — Entries]
+      summary: Registra una entrada en una estrategia DCA
+      operationId: createDcaEntry
+      parameters:
+        - name: strategyId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DcaEntryCreate'
+            example:
+              type: "INCREMENTO"
+              entryDate: "2026-04-05"
+              amountUsd: "500.00"
+              assetPriceAtEntry: "67800.00"
+              unitsReceived: "0.00737"
+      responses:
+        '201':
+          description: Entrada registrada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaEntry'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StrategyAlreadyClosed'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /dca/entries/{id}:
+    patch:
+      tags: [DCA — Entries]
+      summary: Corrige una entrada DCA
+      operationId: updateDcaEntry
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DcaEntryUpdate'
+      responses:
+        '200':
+          description: Entrada actualizada
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DcaEntry'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StrategyAlreadyClosed'
+    delete:
+      tags: [DCA — Entries]
+      summary: Elimina una entrada DCA
+      operationId: deleteDcaEntry
+      parameters:
+        - $ref: '#/components/parameters/IdPath'
+      responses:
+        '204':
+          description: Entrada eliminada
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/StrategyAlreadyClosed'
+
+  # ── CCL ────────────────────────────────────────────────────
+  /ccl:
+    get:
+      tags: [CCL]
+      summary: Historial de CCL con filtros de fecha
+      operationId: listCcl
+      parameters:
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - name: order
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Historial de CCL
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CclRate'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      tags: [CCL]
+      summary: Carga manual de un valor CCL
+      operationId: createCclRate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CclRateCreate'
+      responses:
+        '201':
+          description: CCL creado (o 200 si ya existía y se actualizó)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CclRate'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /ccl/latest:
+    get:
+      tags: [CCL]
+      summary: Último valor de CCL disponible
+      operationId: getLatestCcl
+      responses:
+        '200':
+          description: Último CCL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    $ref: '#/components/schemas/CclRate'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /ccl/date/{date}:
+    get:
+      tags: [CCL]
+      summary: CCL de una fecha específica (o el más cercano anterior)
+      operationId: getCclByDate
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema:
+            type: string
+            format: date
+            example: "2024-07-20"
+      responses:
+        '200':
+          description: CCL para la fecha
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    allOf:
+                      - $ref: '#/components/schemas/CclRate'
+                      - type: object
+                        properties:
+                          isExact:
+                            type: boolean
+                          requestedDate:
+                            type: string
+                            format: date
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /ccl/sync:
+    post:
+      tags: [CCL]
+      summary: Sincroniza CCL desde la API de Ambito
+      operationId: syncCcl
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                from:
+                  type: string
+                  format: date
+                to:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Resultado del sync
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      synced:
+                        type: integer
+                      skipped:
+                        type: integer
+                      errors:
+                        type: integer
+                      from:
+                        type: string
+                        format: date
+                      to:
+                        type: string
+                        format: date
+                      syncedAt:
+                        type: string
+                        format: date-time
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '503':
+          $ref: '#/components/responses/PriceUnavailable'
+
+  # ── Prices (multi-asset) ───────────────────────────────────
+  /prices/current:
+    get:
+      tags: [Prices]
+      summary: Precios actuales de múltiples activos
+      operationId: getCurrentPrices
+      parameters:
+        - name: tickers
+          in: query
+          required: true
+          schema:
+            type: string
+            example: "BTC,ETH,GGAL"
+          description: Lista de tickers separada por comas (max 50)
+      responses:
+        '200':
+          description: Precios actuales
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PricePoint'
+                  meta:
+                    type: object
+                    properties:
+                      requested:
+                        type: integer
+                      resolved:
+                        type: integer
+                      failed:
+                        type: integer
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /prices/sync:
+    post:
+      tags: [Prices]
+      summary: Actualiza precios de todos los activos activos
+      operationId: syncPrices
+      responses:
+        '200':
+          description: Resultado del sync de precios
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      synced:
+                        type: integer
+                      failed:
+                        type: integer
+                      syncedAt:
+                        type: string
+                        format: date-time
+                      failedTickers:
+                        type: array
+                        items:
+                          type: string
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
+components:
+
+  # ── Parameters ─────────────────────────────────────────────
+  parameters:
+    IdPath:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+
+    PageParam:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+
+    LimitParam:
+      name: limit
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 50
+
+    OrderParam:
+      name: order
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+        default: desc
+
+    FromDate:
+      name: from
+      in: query
+      schema:
+        type: string
+        format: date
+        example: "2025-01-01"
+
+    ToDate:
+      name: to
+      in: query
+      schema:
+        type: string
+        format: date
+        example: "2025-12-31"
+
+  # ── Schemas ────────────────────────────────────────────────
+  schemas:
+
+    # Enums
+    AssetType:
+      type: string
+      enum: [CRYPTO, ACCION_ARG, CEDEAR, FCI, BONO, COMMODITY]
+
+    Currency:
+      type: string
+      enum: [ARS, USD]
+
+    PriceSource:
+      type: string
+      enum: [COINGECKO, IOL, RAVA, MANUAL]
+
+    PositionStatus:
+      type: string
+      enum: [OPEN, CLOSED]
+
+    TradeType:
+      type: string
+      enum: [BUY, SELL]
+
+    DcaEntryType:
+      type: string
+      enum: [APERTURA, INCREMENTO, CIERRE]
+
+    CclSource:
+      type: string
+      enum: [AMBITO, MANUAL]
+
+    # Base
+    PaginatedResponse:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+            page:
+              type: integer
+            limit:
+              type: integer
+            pages:
+              type: integer
+
+    # Asset
+    Asset:
+      type: object
+      required: [id, ticker, name, assetType, currencyNative, priceSource, isActive]
+      properties:
+        id:
+          type: string
+          format: uuid
+        ticker:
+          type: string
+          example: BTC
+        name:
+          type: string
+          example: Bitcoin
+        assetType:
+          $ref: '#/components/schemas/AssetType'
+        currencyNative:
+          $ref: '#/components/schemas/Currency'
+        priceSource:
+          $ref: '#/components/schemas/PriceSource'
+        priceSourceId:
+          type: string
+          nullable: true
+          example: bitcoin
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    AssetCreate:
+      type: object
+      required: [ticker, name, assetType, currencyNative, priceSource]
+      properties:
+        ticker:
+          type: string
+          maxLength: 20
+        name:
+          type: string
+          maxLength: 100
+        assetType:
+          $ref: '#/components/schemas/AssetType'
+        currencyNative:
+          $ref: '#/components/schemas/Currency'
+        priceSource:
+          $ref: '#/components/schemas/PriceSource'
+        priceSourceId:
+          type: string
+
+    AssetUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        priceSourceId:
+          type: string
+        isActive:
+          type: boolean
+
+    # Broker
+    Broker:
+      type: object
+      required: [id, name, commissionPct, currency]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: IOL
+        commissionPct:
+          type: string
+          example: "0.7000"
+        currency:
+          $ref: '#/components/schemas/Currency'
+        config:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+
+    BrokerCreate:
+      type: object
+      required: [name, commissionPct, currency]
+      properties:
+        name:
+          type: string
+          maxLength: 50
+        commissionPct:
+          type: string
+          description: Porcentaje como string decimal (ej "0.7000")
+        currency:
+          $ref: '#/components/schemas/Currency'
+
+    BrokerUpdate:
+      type: object
+      properties:
+        commissionPct:
+          type: string
+        config:
+          type: object
+
+    # Portfolio
+    Portfolio:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/Currency'
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    PortfolioDetail:
+      allOf:
+        - $ref: '#/components/schemas/Portfolio'
+        - type: object
+          properties:
+            openPositionsCount:
+              type: integer
+            closedPositionsCount:
+              type: integer
+            capitalUsd:
+              type: string
+            currentValueUsd:
+              type: string
+            pnlUsd:
+              type: string
+            pnlPct:
+              type: string
+
+    PortfolioCreate:
+      type: object
+      required: [name, currency]
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        description:
+          type: string
+          maxLength: 300
+        currency:
+          $ref: '#/components/schemas/Currency'
+
+    PortfolioUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        isActive:
+          type: boolean
+
+    PortfolioSummary:
+      type: object
+      properties:
+        portfolioId:
+          type: string
+          format: uuid
+        portfolioName:
+          type: string
+        openPositions:
+          type: object
+          properties:
+            count:
+              type: integer
+            capitalUsd:
+              type: string
+            currentValueUsd:
+              type: string
+            unrealizedPnlUsd:
+              type: string
+            unrealizedPnlPct:
+              type: string
+        closedPositions:
+          type: object
+          properties:
+            count:
+              type: integer
+            realizedPnlUsd:
+              type: string
+        totalPnlUsd:
+          type: string
+
+    # Trading — Position
+    PositionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/PositionStatus'
+        assetId:
+          type: string
+          format: uuid
+        assetTicker:
+          type: string
+        assetName:
+          type: string
+        portfolioId:
+          type: string
+          format: uuid
+        portfolioName:
+          type: string
+        brokerId:
+          type: string
+          format: uuid
+        brokerName:
+          type: string
+        openedAt:
+          type: string
+          format: date
+        closedAt:
+          type: string
+          format: date
+          nullable: true
+        daysOpen:
+          type: integer
+        totalUnits:
+          type: string
+        avgPricePpc:
+          type: string
+        capitalUsd:
+          type: string
+        currentPrice:
+          type: string
+          nullable: true
+        currentValueUsd:
+          type: string
+          nullable: true
+        pnlUsd:
+          type: string
+          nullable: true
+        pnlPct:
+          type: string
+          nullable: true
+        tradesCount:
+          type: integer
+
+    PositionDetail:
+      allOf:
+        - $ref: '#/components/schemas/PositionSummary'
+        - type: object
+          properties:
+            asset:
+              $ref: '#/components/schemas/Asset'
+            portfolio:
+              $ref: '#/components/schemas/Portfolio'
+            broker:
+              $ref: '#/components/schemas/Broker'
+            trades:
+              type: array
+              items:
+                $ref: '#/components/schemas/Trade'
+
+    PositionCreate:
+      type: object
+      required: [portfolioId, assetId, brokerId, trade]
+      properties:
+        portfolioId:
+          type: string
+          format: uuid
+        assetId:
+          type: string
+          format: uuid
+        brokerId:
+          type: string
+          format: uuid
+        trade:
+          type: object
+          required: [tradeDate, units, priceNative]
+          properties:
+            tradeDate:
+              type: string
+              format: date
+            units:
+              type: string
+            priceNative:
+              type: string
+            notes:
+              type: string
+              maxLength: 500
+
+    PositionPnl:
+      type: object
+      properties:
+        positionId:
+          type: string
+          format: uuid
+        totalUnits:
+          type: string
+        capitalUsd:
+          type: string
+        currentPrice:
+          type: string
+        currentValueUsd:
+          type: string
+        pnlUsd:
+          type: string
+        pnlPct:
+          type: string
+        priceFreshAt:
+          type: string
+          format: date-time
+
+    # Trading — Trade
+    Trade:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        positionId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TradeType'
+        tradeDate:
+          type: string
+          format: date
+        units:
+          type: string
+        priceNative:
+          type: string
+        currency:
+          $ref: '#/components/schemas/Currency'
+        cclRate:
+          type: string
+          nullable: true
+          description: Null si currency = USD
+        priceUsd:
+          type: string
+        totalUsd:
+          type: string
+        commission:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    TradeCreate:
+      type: object
+      required: [type, tradeDate, units, priceNative]
+      properties:
+        type:
+          $ref: '#/components/schemas/TradeType'
+        tradeDate:
+          type: string
+          format: date
+        units:
+          type: string
+        priceNative:
+          type: string
+        notes:
+          type: string
+          maxLength: 500
+
+    TradeUpdate:
+      type: object
+      properties:
+        tradeDate:
+          type: string
+          format: date
+        units:
+          type: string
+        priceNative:
+          type: string
+        notes:
+          type: string
+
+    # DCA
+    DcaStrategySummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        isActive:
+          type: boolean
+        asset:
+          $ref: '#/components/schemas/Asset'
+        portfolio:
+          $ref: '#/components/schemas/Portfolio'
+        broker:
+          $ref: '#/components/schemas/Broker'
+        startedAt:
+          type: string
+          format: date
+        closedAt:
+          type: string
+          format: date
+          nullable: true
+        daysActive:
+          type: integer
+        entriesCount:
+          type: integer
+        accumulatedCapitalUsd:
+          type: string
+        currentValueUsd:
+          type: string
+          nullable: true
+        pnlUsd:
+          type: string
+          nullable: true
+        pnlPct:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+
+    DcaStrategyDetail:
+      allOf:
+        - $ref: '#/components/schemas/DcaStrategySummary'
+        - type: object
+          properties:
+            avgDcaPrice:
+              type: string
+              nullable: true
+            entries:
+              type: array
+              items:
+                $ref: '#/components/schemas/DcaEntry'
+
+    DcaStrategyCreate:
+      type: object
+      required: [portfolioId, assetId, brokerId, startedAt]
+      properties:
+        portfolioId:
+          type: string
+          format: uuid
+        assetId:
+          type: string
+          format: uuid
+        brokerId:
+          type: string
+          format: uuid
+        startedAt:
+          type: string
+          format: date
+        notes:
+          type: string
+          maxLength: 500
+
+    DcaStrategyUpdate:
+      type: object
+      properties:
+        brokerId:
+          type: string
+          format: uuid
+        notes:
+          type: string
+
+    DcaStrategySummaryMetrics:
+      type: object
+      properties:
+        strategyId:
+          type: string
+          format: uuid
+        accumulatedCapitalUsd:
+          type: string
+        currentValueUsd:
+          type: string
+        avgDcaPrice:
+          type: string
+          nullable: true
+        currentPrice:
+          type: string
+          nullable: true
+        pnlUsd:
+          type: string
+        pnlPct:
+          type: string
+        daysActive:
+          type: integer
+        entriesCount:
+          type: integer
+        priceFreshAt:
+          type: string
+          format: date-time
+
+    DcaEntry:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        strategyId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/DcaEntryType'
+        entryDate:
+          type: string
+          format: date
+        amountUsd:
+          type: string
+        accumulatedCapitalUsd:
+          type: string
+        assetPriceAtEntry:
+          type: string
+          nullable: true
+        unitsReceived:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+
+    DcaEntryCreate:
+      type: object
+      required: [type, entryDate, amountUsd]
+      properties:
+        type:
+          $ref: '#/components/schemas/DcaEntryType'
+        entryDate:
+          type: string
+          format: date
+        amountUsd:
+          type: string
+        assetPriceAtEntry:
+          type: string
+        unitsReceived:
+          type: string
+        notes:
+          type: string
+          maxLength: 500
+
+    DcaEntryUpdate:
+      type: object
+      properties:
+        entryDate:
+          type: string
+          format: date
+        amountUsd:
+          type: string
+        assetPriceAtEntry:
+          type: string
+        unitsReceived:
+          type: string
+        notes:
+          type: string
+
+    # CCL
+    CclRate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        date:
+          type: string
+          format: date
+        rate:
+          type: string
+          example: "1218.50"
+        source:
+          $ref: '#/components/schemas/CclSource'
+        createdAt:
+          type: string
+          format: date-time
+
+    CclRateCreate:
+      type: object
+      required: [date, rate]
+      properties:
+        date:
+          type: string
+          format: date
+        rate:
+          type: string
+          description: Valor decimal positivo
+
+    # Prices
+    PricePoint:
+      type: object
+      properties:
+        assetId:
+          type: string
+          format: uuid
+          nullable: true
+        ticker:
+          type: string
+        price:
+          type: string
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/Currency'
+        fetchedAt:
+          type: string
+          format: date-time
+
+    PriceHistoryPoint:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        price:
+          type: string
+        currency:
+          $ref: '#/components/schemas/Currency'
+
+    PriceHistoryMeta:
+      type: object
+      properties:
+        assetId:
+          type: string
+          format: uuid
+        ticker:
+          type: string
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        interval:
+          type: string
+        points:
+          type: integer
+
+    # Dashboard
+    DashboardSummary:
+      type: object
+      properties:
+        totalCapitalUsd:
+          type: string
+        unrealizedPnlUsd:
+          type: string
+        unrealizedPnlPct:
+          type: string
+        openPositionsCount:
+          type: integer
+        openPositionsPortfolios:
+          type: integer
+        activeDcaStrategiesCount:
+          type: integer
+        activeDcaCapitalUsd:
+          type: string
+        pricesStale:
+          type: boolean
+          description: true si los precios no se pudieron actualizar
+        lastUpdatedAt:
+          type: string
+          format: date-time
+
+    # RFC 7807 Problem
+    Problem:
+      type: object
+      required: [type, title, status, detail, instance]
+      properties:
+        type:
+          type: string
+          example: /errors/validation-error
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        errors:
+          type: array
+          description: Solo en errores de validación
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+        requestId:
+          type: string
+          description: Solo en errores 500
+
+  # ── Responses ──────────────────────────────────────────────
+  responses:
+    ValidationError:
+      description: Datos de entrada inválidos (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/validation-error
+            title: Error de validación
+            status: 422
+            detail: Los datos enviados no son válidos
+            instance: /api/v1/trading/positions
+            errors:
+              - field: units
+                message: Debe ser mayor a 0
+              - field: tradeDate
+                message: Fecha requerida
+
+    NotFound:
+      description: Recurso no encontrado (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/not-found
+            title: Recurso no encontrado
+            status: 404
+            detail: No existe una posición con ID a1b2c3d4
+            instance: /api/v1/trading/positions/a1b2c3d4
+
+    PositionAlreadyClosed:
+      description: Operación sobre posición cerrada (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/position-already-closed
+            title: Posición cerrada
+            status: 409
+            detail: La posición fue cerrada el 2025-12-01 y no acepta nuevas operaciones
+            instance: /api/v1/trading/positions/uuid/trades
+
+    InsufficientUnits:
+      description: Intento de vender más unidades de las disponibles (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/insufficient-units
+            title: Unidades insuficientes
+            status: 409
+            detail: La posición tiene 100 unidades disponibles, se intentaron vender 150
+            instance: /api/v1/trading/positions/uuid/trades
+
+    CclNotAvailable:
+      description: Sin CCL disponible para la fecha del trade (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/ccl-not-available
+            title: CCL no disponible
+            status: 422
+            detail: No hay registro de CCL para la fecha 2024-07-20
+            instance: /api/v1/trading/positions/uuid/trades
+
+    StrategyAlreadyClosed:
+      description: Operación sobre estrategia DCA cerrada (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/strategy-already-closed
+            title: Estrategia DCA cerrada
+            status: 409
+            detail: La estrategia fue cerrada el 2025-06-15
+            instance: /api/v1/dca/strategies/uuid/entries
+
+    PriceUnavailable:
+      description: API externa de precios no disponible (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/price-unavailable
+            title: Precio no disponible
+            status: 503
+            detail: No se pudo obtener el precio actual desde CoinGecko
+            instance: /api/v1/assets/uuid/price/current
+
+    InternalError:
+      description: Error interno del servidor (RFC 7807)
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/Problem'
+          example:
+            type: /errors/internal-error
+            title: Error interno del servidor
+            status: 500
+            detail: Error inesperado. Revisá los logs con el requestId.
+            instance: /api/v1/trading/positions
+            requestId: req_7f3a2b1c

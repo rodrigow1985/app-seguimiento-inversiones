@@ -1,0 +1,25 @@
+{
+  "prices": {
+    "refreshIntervalSeconds": 60,
+    "decimals": {
+      "CRYPTO": 8,
+      "ACCION_ARG": 2,
+      "CEDEAR": 2,
+      "FCI": 4,
+      "BONO": 4,
+      "COMMODITY": 8
+    }
+  },
+  "ccl": {
+    "refreshIntervalSeconds": 3600,
+    "fallbackToLastKnown": true
+  },
+  "pagination": {
+    "defaultLimit": 50,
+    "maxLimit": 500
+  },
+  "display": {
+    "defaultCurrency": "USD",
+    "dateFormat": "YYYY-MM-DD"
+  }
+}

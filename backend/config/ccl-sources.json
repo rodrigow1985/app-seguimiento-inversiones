@@ -1,0 +1,13 @@
+{
+  "primary": {
+    "provider": "ambito",
+    "baseUrl": "https://mercados.ambito.com",
+    "historyPath": "/dolarrava/cl/historico-general/{from}/{to}",
+    "currentPath": "/dolarrava/cl/variacion",
+    "dateFormat": "DD-MM-YYYY"
+  },
+  "updateSchedule": {
+    "cronExpression": "0 18 * * 1-5",
+    "description": "Actualizar lunes a viernes a las 18hs (después del cierre del mercado)"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "coingecko": {
+    "baseUrl": "https://api.coingecko.com/api/v3",
+    "rateLimit": 30,
+    "cacheSeconds": 60,
+    "assets": {
+      "BTC": "bitcoin",
+      "ETH": "ethereum",
+      "ADA": "cardano",
+      "PAXG": "pax-gold",
+      "BNB": "binancecoin",
+      "AVAX": "avalanche-2",
+      "SOL": "solana",
+      "DOT": "polkadot",
+      "MATIC": "matic-network",
+      "RUNE": "thorchain",
+      "XTZ": "tezos"
+    }
+  },
+  "iol": {
+    "baseUrl": "https://api.invertironline.com",
+    "cacheSeconds": 300,
+    "markets": {
+      "CEDEAR": "bCBA",
+      "ACCION_ARG": "bCBA",
+      "FCI": "bCBA",
+      "BONO": "bCBA"
+    }
+  }
+}
