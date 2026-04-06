@@ -36,6 +36,9 @@ Thumbs.db
 .agents/
 skills-lock.json
 
+# Excel original con datos financieros
+docs/copia_original/
+
 # Docusaurus
 website/.docusaurus/
 website/node_modules/
