@@ -31,12 +31,12 @@ El usuario vende una parte de sus unidades. Esto agrega:
 - Un `Trade` de tipo `SELL` a la misma `Position`
 - La posición sigue `ABIERTA` si quedan unidades sin vender
 
-### 4. Cerrar posición
+### 4. Cerrar posición (implícito)
 
-El usuario vende todas las unidades. Esto:
+El usuario vende todas las unidades restantes. Esto:
 - Agrega el último `Trade` de tipo `SELL`
-- La `Position` pasa a `status = CERRADA` y se registra `closed_at`
-- Se calcula el P&L realizado final
+- La posición pasa automáticamente a `status = CLOSED` (calculado: `open_units = 0`)
+- No hay acción manual de cierre — el estado es siempre derivado de los trades
 
 ## Cálculos financieros
 

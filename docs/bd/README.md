@@ -68,9 +68,9 @@ App personal — no hay ventaja en BIGINT. UUID permite seed determinístico y e
 `trades.price_native` + `trades.currency` + `trades.ccl_rate_id` → la conversión a USD se reproduce siempre desde los datos originales.  
 `trades.price_usd` y `trades.total_usd` se almacenan como snapshot de la conversión aplicada (trazabilidad histórica).
 
-### 5. accumulated_capital_usd en dca_entries (denormalización explícita)
-Es el único campo "calculado" que sí se persiste: la suma acumulada de capital DCA hasta esa entrada.  
-**Razón**: necesario para ordenamiento cronológico y performance del gráfico de acumulación. Se recalcula en cascada al editar/borrar entradas.
+### 5. accumulated_capital_usd en dca_entries (campo calculado)
+No se persiste. Se calcula on-the-fly en el servicio como la suma acumulada de `amount_usd` de todas las entradas anteriores, ordenadas por `entry_date`.  
+**Razón**: al editar o borrar cualquier entrada, no hay nada que recalcular en cascada — el valor se deriva siempre de los datos existentes.
 
 ### 6. ON DELETE strategies
 | FK | Strategy | Razón |
@@ -82,6 +82,7 @@ Es el único campo "calculado" que sí se persiste: la suma acumulada de capital
 | `trades → ccl_rates` | RESTRICT | No borrar CCL usado en un trade |
 | `dca_strategies → portfolios` | RESTRICT | No borrar cartera con estrategias |
 | `dca_entries → dca_strategies` | CASCADE | Entrada sin estrategia no tiene sentido |
+| `dca_entries → ccl_rates` | RESTRICT | No borrar CCL usado en una entrada DCA |
 | `price_snapshots → assets` | CASCADE | Snapshots son efímeros |
 
 ### 7. price_snapshots: retención 90 días

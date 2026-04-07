@@ -24,6 +24,8 @@ Lista posiciones con filtros. Alimenta S02.
 | `sort` | string | No | `pnlPct`, `pnlUsd`, `capitalUsd`, `daysOpen`, `openedAt` |
 | `order` | string | No | `asc` / `desc` (default: `desc`) |
 
+> `status` y `closedAt` son campos **calculados** por el servicio a partir de los trades. No se almacenan en DB.
+
 #### Respuesta 200
 
 ```json
@@ -216,47 +218,6 @@ Crea una posición nueva con su primer trade (BUY obligatorio).
 
 ---
 
-### PATCH /trading/positions/:id/close
-
-Cierra una posición. No se pueden agregar más trades después.
-
-#### Body
-
-```json
-{
-  "closedAt": "2026-04-05",
-  "notes":    "Toma de ganancias"
-}
-```
-
-| Campo | Tipo | Requerido | Descripción |
-|-------|------|-----------|-------------|
-| `closedAt` | date | ✓ | Fecha de cierre |
-| `notes` | string | — | Nota opcional |
-
-#### Respuesta 200
-
-```json
-{
-  "data": {
-    "id":       "uuid",
-    "status":   "CLOSED",
-    "closedAt": "2026-04-05",
-    "pnlRealizedUsd": "1150.40"
-  }
-}
-```
-
-#### Errores posibles
-
-| Error | Status | Cuándo |
-|-------|--------|--------|
-| `not-found` | 404 | Posición no existe |
-| `position-already-closed` | 409 | Ya estaba cerrada |
-| `validation-error` | 422 | `closedAt` anterior a `openedAt` |
-
----
-
 ### GET /trading/positions/:id/pnl
 
 P&L calculado en tiempo real. Útil para actualizar S03 sin recargar los trades.
@@ -358,17 +319,17 @@ Agrega un trade (BUY o SELL) a una posición existente. Alimenta modal S04.
 #### Flujo: Camino feliz
 ```
 1. Verifica que positionId existe
-2. Verifica que posición está OPEN
-3. Valida body
-4. Resuelve CCL si asset.currency = ARS:
+2. Calcula open_units actuales de la posición (Σ BUY − Σ SELL)
+3. Si open_units = 0 → error position-already-closed
+4. Valida body
+5. Resuelve CCL si asset.currency = ARS:
    - Busca CclRate exacto para tradeDate
    - Si no existe → error ccl-not-available
-5. Si type = SELL:
-   - Calcula unidades disponibles actuales
-   - Si units > disponibles → error insufficient-units
-6. Calcula priceUsd, totalUsd, commission = totalUsd × broker.commissionPct
-7. Inserta Trade
-8. Devuelve 201
+6. Si type = SELL:
+   - Si units > open_units → error insufficient-units
+7. Calcula priceUsd, totalUsd, commission = totalUsd × broker.commissionPct
+8. Inserta Trade
+9. Devuelve 201
 ```
 
 #### Flujos alternativos
@@ -376,7 +337,7 @@ Agrega un trade (BUY o SELL) a una posición existente. Alimenta modal S04.
 | Condición | Error | Status |
 |-----------|-------|--------|
 | positionId no existe | `not-found` | 404 |
-| Posición cerrada | `position-already-closed` | 409 |
+| open_units = 0 (posición cerrada) | `position-already-closed` | 409 |
 | SELL con más unidades de las disponibles | `insufficient-units` | 409 |
 | Sin CCL para la fecha | `ccl-not-available` | 422 |
 | units ≤ 0 o priceNative ≤ 0 | `validation-error` | 422 |
@@ -386,7 +347,7 @@ Agrega un trade (BUY o SELL) a una posición existente. Alimenta modal S04.
 
 ### PATCH /trading/trades/:id
 
-Corrige un trade existente (fecha, precio, unidades). Solo si la posición sigue OPEN.
+Corrige un trade existente (fecha, precio, unidades). Solo si la posición sigue OPEN (`open_units > 0`).
 
 #### Body (todos opcionales)
 
@@ -408,7 +369,7 @@ Devuelve el trade actualizado con los campos recalculados (`priceUsd`, `totalUsd
 | Error | Status | Cuándo |
 |-------|--------|--------|
 | `not-found` | 404 | Trade no existe |
-| `position-already-closed` | 409 | La posición ya está cerrada |
+| `position-already-closed` | 409 | open_units = 0 (posición cerrada) |
 | `validation-error` | 422 | Valores inválidos |
 | `ccl-not-available` | 422 | Nueva fecha sin CCL (si ARS) |
 | `insufficient-units` | 409 | Corrección de SELL deja balance negativo |
@@ -417,7 +378,7 @@ Devuelve el trade actualizado con los campos recalculados (`priceUsd`, `totalUsd
 
 ### DELETE /trading/trades/:id
 
-Elimina un trade. Solo si la posición sigue OPEN y el balance resultante no queda negativo.
+Elimina un trade. Solo si la posición sigue OPEN (`open_units > 0`) y el balance resultante no queda negativo.
 
 #### Respuesta 204
 
@@ -428,5 +389,5 @@ Sin body.
 | Error | Status | Cuándo |
 |-------|--------|--------|
 | `not-found` | 404 | Trade no existe |
-| `position-already-closed` | 409 | Posición cerrada |
+| `position-already-closed` | 409 | open_units = 0 (posición cerrada) |
 | `validation-error` | 422 | Eliminar el trade dejaría unidades negativas |

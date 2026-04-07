@@ -8,23 +8,25 @@ Entradas individuales de una estrategia DCA. Pueden ser de tipo Apertura, Increm
 
 ```sql
 CREATE TABLE dca_entries (
-  id                      UUID           PRIMARY KEY DEFAULT gen_random_uuid(),
-  strategy_id             UUID           NOT NULL REFERENCES dca_strategies(id) ON DELETE CASCADE,
-  type                    VARCHAR(10)    NOT NULL,
-  entry_date              DATE           NOT NULL,
-  amount_usd              NUMERIC(18,4)  NOT NULL,
-  accumulated_capital_usd NUMERIC(18,4)  NOT NULL,
-  asset_price_at_entry    NUMERIC(18,4),
-  units_received          NUMERIC(18,8),
-  notes                   TEXT,
-  created_at              TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
-  updated_at              TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  id                   UUID           PRIMARY KEY DEFAULT gen_random_uuid(),
+  strategy_id          UUID           NOT NULL REFERENCES dca_strategies(id) ON DELETE CASCADE,
+  ccl_rate_id          UUID           REFERENCES ccl_rates(id) ON DELETE RESTRICT,
+  type                 VARCHAR(10)    NOT NULL,
+  entry_date           DATE           NOT NULL,
+  amount_usd           NUMERIC(18,4)  NOT NULL,
+  amount_ars           NUMERIC(18,4),
+  asset_price_at_entry NUMERIC(18,4),
+  units_received       NUMERIC(18,8),
+  notes                TEXT,
+  created_at           TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
+  updated_at           TIMESTAMPTZ    NOT NULL DEFAULT NOW(),
 
-  CONSTRAINT chk_dca_entry_type           CHECK (type IN ('APERTURA','INCREMENTO','CIERRE')),
-  CONSTRAINT chk_dca_entry_amount_pos     CHECK (amount_usd > 0),
-  CONSTRAINT chk_dca_entry_acum_pos       CHECK (accumulated_capital_usd >= 0),
-  CONSTRAINT chk_dca_entry_price_pos      CHECK (asset_price_at_entry IS NULL OR asset_price_at_entry > 0),
-  CONSTRAINT chk_dca_entry_units_nn       CHECK (units_received IS NULL OR units_received >= 0)
+  CONSTRAINT chk_dca_entry_type        CHECK (type IN ('APERTURA','INCREMENTO','CIERRE')),
+  CONSTRAINT chk_dca_entry_amount_pos  CHECK (amount_usd > 0),
+  CONSTRAINT chk_dca_entry_amount_ars  CHECK (amount_ars IS NULL OR amount_ars > 0),
+  CONSTRAINT chk_dca_entry_price_pos   CHECK (asset_price_at_entry IS NULL OR asset_price_at_entry > 0),
+  CONSTRAINT chk_dca_entry_units_nn    CHECK (units_received IS NULL OR units_received >= 0),
+  CONSTRAINT chk_dca_entry_ars_ccl     CHECK (amount_ars IS NULL OR ccl_rate_id IS NOT NULL)
 );
 ```
 
@@ -36,10 +38,11 @@ CREATE TABLE dca_entries (
 |---------|------|----------|---------|-------------|
 | `id` | UUID | NO | `gen_random_uuid()` | PK |
 | `strategy_id` | UUID | NO | — | FK → dca_strategies |
+| `ccl_rate_id` | UUID | SÍ | NULL | FK → ccl_rates. Requerido si `amount_ars` está presente |
 | `type` | VARCHAR(10) | NO | — | `APERTURA`, `INCREMENTO` o `CIERRE` |
 | `entry_date` | DATE | NO | — | Fecha de la compra/depósito |
-| `amount_usd` | NUMERIC(18,4) | NO | — | Monto invertido en esta entrada (USD) |
-| `accumulated_capital_usd` | NUMERIC(18,4) | NO | — | **Suma acumulada** de capital hasta esta entrada (ver abajo) |
+| `amount_usd` | NUMERIC(18,4) | NO | — | Monto invertido en USD. Si ARS: `amount_ars / ccl_rate` |
+| `amount_ars` | NUMERIC(18,4) | SÍ | NULL | Monto original en ARS (solo activos con `currency_native = ARS`) |
 | `asset_price_at_entry` | NUMERIC(18,4) | SÍ | NULL | Precio del activo al momento de la compra (opcional) |
 | `units_received` | NUMERIC(18,8) | SÍ | NULL | Unidades recibidas por esta entrada (opcional) |
 | `notes` | TEXT | SÍ | NULL | Notas libres |
@@ -48,23 +51,13 @@ CREATE TABLE dca_entries (
 
 ---
 
-## Por qué accumulated_capital_usd se persiste
+## Campos calculados (NO en DB)
 
-Es la **única denormalización explícita** del sistema (ver [README.md](../README.md#decisiones-de-diseño)).
+| Campo | Cálculo |
+|-------|---------|
+| `accumulated_capital_usd` | `Σ(amount_usd de todas las entradas anteriores + esta, ordenadas por entry_date)` |
 
-```
-entry_1: amount=300  → accumulated=300
-entry_2: amount=400  → accumulated=700
-entry_3: amount=350  → accumulated=1050
-...
-```
-
-**Razones:**
-1. Alimenta el gráfico de acumulación de capital (S06) con una query simple ordenada por `entry_date`
-2. Permite mostrar el capital acumulado en cada punto sin recalcular toda la serie
-3. El valor actual de la estrategia NO se persiste (depende del precio, que cambia)
-
-**Trade-off:** al editar o borrar una entrada, el service debe recalcular `accumulated_capital_usd` de todas las entradas posteriores en cascada.
+`accumulated_capital_usd` se calcula on-the-fly en el servicio al leer las entradas de una estrategia. Al editar o borrar cualquier entrada, no se requiere recálculo en cascada porque el valor nunca se almacena.
 
 ---
 
@@ -83,6 +76,7 @@ CREATE INDEX idx_dca_entries_type           ON dca_entries(strategy_id, type);
 | Dirección | Tabla | FK | ON DELETE |
 |-----------|-------|-----|-----------|
 | Padre | `dca_strategies` | `strategy_id` | CASCADE |
+| Padre | `ccl_rates` | `ccl_rate_id` | RESTRICT |
 
 ---
 

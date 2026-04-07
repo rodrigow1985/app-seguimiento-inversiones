@@ -233,8 +233,8 @@ Si no se envía body, sincroniza los últimos 7 días por defecto.
 }
 ```
 
-- **`synced`:** registros nuevos o actualizados
-- **`skipped`:** días sin cotización (feriados, fines de semana)
+- **`synced`:** registros nuevos insertados
+- **`skipped`:** días sin cotización (feriados, fines de semana) o que ya tenían un registro en DB
 - **`errors`:** días que fallaron (se loguean internamente)
 
 ### Flujo: Camino feliz
@@ -242,7 +242,7 @@ Si no se envía body, sincroniza los últimos 7 días por defecto.
 1. Parsea rango from/to (default: últimos 7 días)
 2. Para cada día del rango:
    a. Llama a external/ccl-provider.ts → fetch Ambito API
-   b. Si hay cotización → upsert en CclRate (no sobreescribe MANUAL si ya existe un valor manual)
+   b. Si hay cotización → INSERT solo si no existe ningún registro para esa fecha (ni MANUAL ni AMBITO). Si ya existe, skip.
    c. Si Ambito no tiene dato (feriado) → skip
 3. Retorna resumen
 ```
