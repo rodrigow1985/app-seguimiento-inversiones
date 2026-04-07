@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import { authMiddleware } from './middleware/auth'
 import { errorHandler } from './middleware/error-handler'
+import { assetsRouter } from './modules/assets/router'
 
 export function createApp() {
   const app = express()
@@ -26,7 +27,8 @@ export function createApp() {
   })
 
   // ── Rutas de negocio ─────────────────────────────────────────────────────
-  // Se van registrando a medida que se implementan los módulos
+
+  app.use('/api/v1/assets', assetsRouter)
 
   // ── Error handler (siempre al final) ─────────────────────────────────────
 
