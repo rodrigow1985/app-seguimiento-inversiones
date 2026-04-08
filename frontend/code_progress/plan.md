@@ -29,14 +29,14 @@ Cada módulo tiene su archivo en `frontend/src/api/` con las llamadas al backend
 
 | # | Archivo | Endpoints cubiertos | Impl | Revisado |
 |---|---------|---------------------|------|---------|
-| 1.1 | `api/assets.ts` | GET /assets, GET /assets/:id, POST, PATCH, DELETE | ⬜ | ⬜ |
-| 1.2 | `api/brokers.ts` | GET /brokers, GET /brokers/:id, POST, PATCH, DELETE | ⬜ | ⬜ |
-| 1.3 | `api/portfolios.ts` | GET /portfolios, GET /portfolios/:id, POST, PATCH, DELETE | ⬜ | ⬜ |
-| 1.4 | `api/ccl.ts` | GET /ccl, GET /ccl/:date, POST /ccl/sync | ⬜ | ⬜ |
-| 1.5 | `api/trading.ts` | Positions + Trades (GET, POST, PATCH, DELETE) + P&L | ⬜ | ⬜ |
-| 1.6 | `api/dca.ts` | Strategies + Entries (GET, POST, PATCH, DELETE) | ⬜ | ⬜ |
-| 1.7 | `api/prices.ts` | GET /assets/:id/price/current, POST /prices/sync | ⬜ | ⬜ |
-| 1.8 | `api/dashboard.ts` | GET /dashboard | ⬜ | ⬜ |
+| 1.1 | `api/assets.ts` | GET /assets, GET /assets/:id, POST, PATCH, DELETE | ✅ | ✅ |
+| 1.2 | `api/brokers.ts` | GET /brokers, GET /brokers/:id, POST, PATCH, DELETE | ✅ | ✅ |
+| 1.3 | `api/portfolios.ts` | GET /portfolios, GET /portfolios/:id, POST, PATCH, DELETE | ✅ | ✅ |
+| 1.4 | `api/ccl.ts` | GET /ccl, GET /ccl/:date, GET /ccl/latest, POST /ccl/sync | ✅ | ✅ |
+| 1.5 | `api/trading.ts` | Positions + Trades (GET, POST, PATCH, DELETE) + P&L | ✅ | ✅ |
+| 1.6 | `api/dca.ts` | Strategies + Entries (GET, POST, PATCH, DELETE) | ✅ | ✅ |
+| 1.7 | `api/prices.ts` | GET /assets/:id/price/current, POST /prices/sync | ✅ | ✅ |
+| 1.8 | `api/dashboard.ts` | GET /dashboard | ✅ | ✅ |
 
 ---
 
@@ -121,10 +121,10 @@ Gestión de activos, brokers y carteras.
 | Fase | Componentes | Implementados | Revisados |
 |------|-------------|---------------|-----------|
 | 0 — Setup | 8 | 8 | 8 |
-| 1 — Capa API | 8 | 0 | 0 |
+| 1 — Capa API | 8 | 8 | 8 |
 | 2 — Dashboard | 6 | 0 | 0 |
 | 3 — Trading | 8 | 0 | 0 |
 | 4 — DCA | 8 | 0 | 0 |
 | 5 — Config | 7 | 0 | 0 |
 | 6 — Precios/CCL | 4 | 0 | 0 |
-| **Total** | **49** | **8** | **8** |
+| **Total** | **49** | **16** | **16** |
