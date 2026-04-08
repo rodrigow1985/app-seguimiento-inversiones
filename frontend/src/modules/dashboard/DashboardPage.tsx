@@ -190,7 +190,7 @@ export default function DashboardPage() {
 
       {/* KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {isLoading ? (
+        {isLoading || !data ? (
           Array.from({ length: 6 }).map((_, i) => (
             <KpiSkeleton key={i} style={delay(i)} />
           ))
@@ -246,7 +246,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Summary cards */}
-      {!isLoading && data && (
+      {data && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <TradingSummary data={data.trading} />
           <DcaSummary data={data.dca} />
