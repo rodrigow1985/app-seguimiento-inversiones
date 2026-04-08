@@ -35,6 +35,7 @@ Thumbs.db
 # Claude Code internals
 .agents/
 skills-lock.json
+.claude/settings.local.json
 
 # Excel original con datos financieros
 docs/copia_original/
