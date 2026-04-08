@@ -78,14 +78,14 @@ Estrategias de acumulación y sus entradas.
 
 | # | Componente / Vista | Descripción | Impl | Revisado |
 |---|-------------------|-------------|------|---------|
-| 4.1 | `DcaPage` | Lista de estrategias DCA activas e inactivas | ⬜ | ⬜ |
-| 4.2 | `DcaStrategyCard` | Card: activo, capital acumulado USD, entradas | ⬜ | ⬜ |
-| 4.3 | `DcaStrategyDetailPage` | Detalle con historial de entradas + gráfico | ⬜ | ⬜ |
-| 4.4 | `DcaEntryRow` | Fila: tipo (APERTURA/INCREMENTO/CIERRE), fecha, monto USD | ⬜ | ⬜ |
-| 4.5 | `AccumulationChart` | Recharts: capital acumulado en el tiempo | ⬜ | ⬜ |
-| 4.6 | `NewStrategyDialog` | Form: nombre, activo, broker, fecha inicio | ⬜ | ⬜ |
-| 4.7 | `AddDcaEntryDialog` | Form: tipo, fecha, monto USD, monto ARS, precio activo | ⬜ | ⬜ |
-| 4.8 | `EditDcaEntryDialog` | Editar entrada existente | ⬜ | ⬜ |
+| 4.1 | `DcaPage` | Lista de estrategias DCA activas e inactivas | ✅ | ✅ |
+| 4.2 | `DcaStrategyCard` | Card: activo, capital acumulado USD, entradas | ✅ | ✅ |
+| 4.3 | `DcaStrategyDetailPage` | Detalle con historial de entradas + gráfico | ✅ | ✅ |
+| 4.4 | `DcaEntryRow` | Fila: tipo (APERTURA/INCREMENTO/CIERRE), fecha, monto USD | ✅ | ✅ |
+| 4.5 | `AccumulationChart` | Recharts: area chart capital acumulado en el tiempo | ✅ | ✅ |
+| 4.6 | `NewStrategyDialog` | Form: nombre, activo, broker, fecha inicio | ✅ | ✅ |
+| 4.7 | `AddDcaEntryDialog` | Form: tipo, fecha, monto USD, monto ARS, precio activo | ✅ | ✅ |
+| 4.8 | `EditDcaEntryDialog` | Editar entrada existente | ✅ | ✅ |
 
 ---
 
@@ -124,7 +124,7 @@ Gestión de activos, brokers y carteras.
 | 1 — Capa API | 8 | 8 | 8 |
 | 2 — Dashboard | 6 | 6 | 6 |
 | 3 — Trading | 8 | 8 | 8 |
-| 4 — DCA | 8 | 0 | 0 |
+| 4 — DCA | 8 | 8 | 8 |
 | 5 — Config | 7 | 0 | 0 |
 | 6 — Precios/CCL | 4 | 0 | 0 |
-| **Total** | **49** | **30** | **30** |
+| **Total** | **49** | **38** | **38** |
