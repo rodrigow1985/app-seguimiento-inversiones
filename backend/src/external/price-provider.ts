@@ -3,9 +3,11 @@
 // Usar siempre este módulo como punto de entrada.
 
 import { PriceUnavailableError } from '../lib/errors'
+import { fetchIolQuote } from './iol-client'
 
 export interface PriceResult {
-  priceUsd: number
+  /** Precio en moneda nativa del activo (ARS para acciones ARG, USD para crypto) */
+  priceNative: number
   currency: 'USD' | 'ARS'
   source: string
   fetchedAt: Date
@@ -13,7 +15,7 @@ export interface PriceResult {
 
 async function fetchCoinGecko(priceSourceId: string): Promise<PriceResult> {
   const apiKey = process.env.COINGECKO_API_KEY
-  const headers: Record<string, string> = { 'Accept': 'application/json' }
+  const headers: Record<string, string> = { Accept: 'application/json' }
   if (apiKey) headers['x-cg-demo-api-key'] = apiKey
 
   const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(priceSourceId)}&vs_currencies=usd`
@@ -25,12 +27,12 @@ async function fetchCoinGecko(priceSourceId: string): Promise<PriceResult> {
   const price = data[priceSourceId]?.usd
   if (price === undefined) throw new Error(`CoinGecko: no price for ${priceSourceId}`)
 
-  return { priceUsd: price, currency: 'USD', source: 'COINGECKO', fetchedAt: new Date() }
+  return { priceNative: price, currency: 'USD', source: 'COINGECKO', fetchedAt: new Date() }
 }
 
-async function fetchIOL(_ticker: string): Promise<PriceResult> {
-  // IOL requires OAuth — placeholder para implementación futura
-  throw new Error('IOL price provider not yet implemented')
+async function fetchIOL(ticker: string): Promise<PriceResult> {
+  const { priceArs } = await fetchIolQuote(ticker)
+  return { priceNative: priceArs, currency: 'ARS', source: 'IOL', fetchedAt: new Date() }
 }
 
 async function fetchRava(_ticker: string): Promise<PriceResult> {

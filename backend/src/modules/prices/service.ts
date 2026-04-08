@@ -3,18 +3,27 @@ import { NotFoundError } from '../../lib/errors'
 import { fetchCurrentPrice } from '../../external/price-provider'
 import type { PriceResult } from '../../external/price-provider'
 
-const TTL_CRYPTO_MS = 60_000     // 60 s
-const TTL_STOCK_MS  = 300_000    // 5 min
+const TTL_CRYPTO_MS = 60_000    // 60 s
+const TTL_STOCK_MS  = 300_000   // 5 min
 
-// In-memory cache: assetId → { result, expiresAt }
-const cache = new Map<string, { result: PriceResult; expiresAt: number }>()
+// In-memory cache: assetId → { priceUsd, result, expiresAt }
+const cache = new Map<string, { priceUsd: number; result: PriceResult; expiresAt: number }>()
 
 function getTtl(priceSource: string): number {
   return priceSource === 'COINGECKO' ? TTL_CRYPTO_MS : TTL_STOCK_MS
 }
 
+// Para activos ARS, convertir usando el último CCL disponible en DB.
+async function toUsd(priceNative: number, currency: 'USD' | 'ARS'): Promise<number> {
+  if (currency === 'USD') return priceNative
+  const latestCcl = await prisma.cclRate.findFirst({ orderBy: { date: 'desc' } })
+  if (!latestCcl) throw new Error('No hay tipo de cambio CCL disponible para convertir precio ARS→USD')
+  return priceNative / Number(latestCcl.rate)
+}
+
 export async function getCurrentPrice(assetId: string): Promise<{
-  price: number
+  priceUsd: number
+  priceNative: number
   currency: string
   source: string
   fetchedAt: Date
@@ -27,26 +36,44 @@ export async function getCurrentPrice(assetId: string): Promise<{
   // Check in-memory cache
   const cached = cache.get(assetId)
   if (cached && cached.expiresAt > Date.now()) {
-    return { ...cached.result, price: cached.result.priceUsd, stale: false, priceDate: null }
+    return {
+      priceUsd: cached.priceUsd,
+      priceNative: cached.result.priceNative,
+      currency: cached.result.currency,
+      source: cached.result.source,
+      fetchedAt: cached.result.fetchedAt,
+      stale: false,
+      priceDate: null,
+    }
   }
 
   // Try external provider
   try {
     const result = await fetchCurrentPrice(asset)
-    cache.set(assetId, { result, expiresAt: Date.now() + getTtl(asset.priceSource) })
+    const priceUsd = await toUsd(result.priceNative, result.currency)
 
-    // Persist snapshot (upsert by assetId + date)
+    cache.set(assetId, { priceUsd, result, expiresAt: Date.now() + getTtl(asset.priceSource) })
+
+    // Snapshot siempre en USD para compatibilidad con cálculos de P&L
     const today = new Date()
     today.setHours(0, 0, 0, 0)
     await prisma.priceSnapshot.upsert({
       where: { assetId_priceDate: { assetId, priceDate: today } },
-      create: { assetId, priceDate: today, price: result.priceUsd, currency: 'USD', source: result.source },
-      update: { price: result.priceUsd, source: result.source },
+      create: { assetId, priceDate: today, price: priceUsd, currency: 'USD', source: result.source },
+      update: { price: priceUsd, source: result.source },
     })
 
-    return { price: result.priceUsd, currency: 'USD', source: result.source, fetchedAt: result.fetchedAt, stale: false, priceDate: today }
+    return {
+      priceUsd,
+      priceNative: result.priceNative,
+      currency: result.currency,
+      source: result.source,
+      fetchedAt: result.fetchedAt,
+      stale: false,
+      priceDate: today,
+    }
   } catch {
-    // Fallback to latest snapshot
+    // Fallback al último snapshot
     const snapshot = await prisma.priceSnapshot.findFirst({
       where: { assetId },
       orderBy: { priceDate: 'desc' },
@@ -54,7 +81,8 @@ export async function getCurrentPrice(assetId: string): Promise<{
     if (!snapshot) throw new NotFoundError(`No hay precio disponible para el activo ${asset.ticker}`)
 
     return {
-      price: Number(snapshot.price),
+      priceUsd: Number(snapshot.price),
+      priceNative: Number(snapshot.price),
       currency: snapshot.currency,
       source: snapshot.source,
       fetchedAt: snapshot.createdAt,
@@ -76,14 +104,16 @@ export async function syncAllPrices(): Promise<{ synced: number; failed: number;
   for (const asset of assets) {
     try {
       const result = await fetchCurrentPrice(asset)
+      const priceUsd = await toUsd(result.priceNative, result.currency)
+
       const today = new Date()
       today.setHours(0, 0, 0, 0)
       await prisma.priceSnapshot.upsert({
         where: { assetId_priceDate: { assetId: asset.id, priceDate: today } },
-        create: { assetId: asset.id, priceDate: today, price: result.priceUsd, currency: 'USD', source: result.source },
-        update: { price: result.priceUsd, source: result.source },
+        create: { assetId: asset.id, priceDate: today, price: priceUsd, currency: 'USD', source: result.source },
+        update: { price: priceUsd, source: result.source },
       })
-      cache.set(asset.id, { result, expiresAt: Date.now() + getTtl(asset.priceSource) })
+      cache.set(asset.id, { priceUsd, result, expiresAt: Date.now() + getTtl(asset.priceSource) })
       synced++
     } catch (err) {
       failed++
