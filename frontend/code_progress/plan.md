@@ -61,14 +61,14 @@ Gestión de posiciones de compra/venta y sus trades.
 
 | # | Componente / Vista | Descripción | Impl | Revisado |
 |---|-------------------|-------------|------|---------|
-| 3.1 | `TradingPage` | Lista de posiciones con tabs Abiertas/Cerradas | ⬜ | ⬜ |
-| 3.2 | `PositionCard` | Card de posición: activo, P&L, % ganancia, estado | ⬜ | ⬜ |
-| 3.3 | `PositionDetailPage` | Detalle con lista de trades + P&L breakdown | ⬜ | ⬜ |
-| 3.4 | `TradeRow` | Fila de trade con tipo BUY/SELL, fecha, precio, unidades | ⬜ | ⬜ |
-| 3.5 | `NewPositionDialog` | Form: activo + broker + primer trade BUY | ⬜ | ⬜ |
-| 3.6 | `AddTradeDialog` | Form: tipo BUY/SELL, fecha, precio, unidades | ⬜ | ⬜ |
-| 3.7 | `EditTradeDialog` | Editar trade existente | ⬜ | ⬜ |
-| 3.8 | `PnlSummary` | Resumen P&L: costo promedio, valor actual, ganancia | ⬜ | ⬜ |
+| 3.1 | `TradingPage` | Lista de posiciones con tabs Abiertas/Cerradas | ✅ | ✅ |
+| 3.2 | `PositionCard` | Card de posición: activo, P&L, % ganancia, estado | ✅ | ✅ |
+| 3.3 | `PositionDetailPage` | Detalle con lista de trades + P&L breakdown | ✅ | ✅ |
+| 3.4 | `TradeRow` | Fila de trade con tipo BUY/SELL, fecha, precio, unidades | ✅ | ✅ |
+| 3.5 | `NewPositionDialog` | Form: activo + broker + primer trade BUY | ✅ | ✅ |
+| 3.6 | `AddTradeDialog` | Form: tipo BUY/SELL, fecha, precio, unidades | ✅ | ✅ |
+| 3.7 | `EditTradeDialog` | Editar trade existente | ✅ | ✅ |
+| 3.8 | `PnlSummary` | Resumen P&L: costo promedio, valor actual, ganancia | ✅ | ✅ |
 
 ---
 
@@ -123,8 +123,8 @@ Gestión de activos, brokers y carteras.
 | 0 — Setup | 8 | 8 | 8 |
 | 1 — Capa API | 8 | 8 | 8 |
 | 2 — Dashboard | 6 | 6 | 6 |
-| 3 — Trading | 8 | 0 | 0 |
+| 3 — Trading | 8 | 8 | 8 |
 | 4 — DCA | 8 | 0 | 0 |
 | 5 — Config | 7 | 0 | 0 |
 | 6 — Precios/CCL | 4 | 0 | 0 |
-| **Total** | **49** | **22** | **22** |
+| **Total** | **49** | **30** | **30** |
