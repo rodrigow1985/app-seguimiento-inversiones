@@ -1,27 +1,30 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from './client'
 
-// ── Types ──────────────────────────────────────────────────────────────────
+// ── Types — must match backend/src/modules/dashboard/service.ts ────────────
+
+export interface DashboardOpenPosition {
+  positionId: number
+  ticker: string
+  portfolioName: string
+  openUnits: string
+  avgCostUsd: string
+  currentPriceUsd: string | null
+  priceStale: boolean
+}
 
 export interface DashboardSummary {
-  capital: {
-    total_usd: number
-    total_ars: number
-    ccl_rate: number
-  }
   trading: {
-    open_positions: number
-    total_invested_usd: number
-    unrealized_pnl_usd: number
-    unrealized_pnl_pct: number
-    realized_pnl_usd: number
+    openPositionsCount: number
+    closedPositionsCount: number
+    totalInvestedUsd: string
+    openPositions: DashboardOpenPosition[]
   }
   dca: {
-    active_strategies: number
-    total_invested_usd: number
-    net_invested_usd: number
+    activeDcaCount: number
+    totalDcaCapitalUsd: string
   }
-  ccl_today: number | null
+  latestCclRate: { date: string; rate: string } | null
 }
 
 // ── Query keys ─────────────────────────────────────────────────────────────
@@ -37,6 +40,6 @@ export function useDashboard() {
   return useQuery({
     queryKey: dashboardKeys.summary(),
     queryFn: () => api.get<DashboardSummary>('/dashboard'),
-    staleTime: 1000 * 60 * 2, // 2 minutes
+    staleTime: 1000 * 60 * 2,
   })
 }

@@ -30,7 +30,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (res.status === 204) return undefined as T
-  return res.json()
+  const json = await res.json()
+  // All backend endpoints wrap responses in { data: ... }
+  return 'data' in json ? json.data : json
 }
 
 export const api = {

@@ -1,14 +1,19 @@
-import { AlertCircle, BarChart3, DollarSign, RefreshCcw, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import {
+  AlertCircle,
+  BarChart3,
+  DollarSign,
+  RefreshCcw,
+  TrendingUp,
+  Wallet,
+} from 'lucide-react'
 import { useDashboard } from '@/api/dashboard'
 import { useSyncPrices } from '@/api/prices'
-import { useCurrencyStore } from '@/store/currency'
-import { formatCurrency, formatNumber, formatPercent } from '@/lib/utils'
+import { formatCurrency, formatNumber } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { KpiCard } from './components/KpiCard'
 
-// ── Skeleton loader ────────────────────────────────────────────────────────
+// ── Skeleton ───────────────────────────────────────────────────────────────
 
 function KpiSkeleton({ style }: { style?: React.CSSProperties }) {
   return (
@@ -24,112 +29,10 @@ function KpiSkeleton({ style }: { style?: React.CSSProperties }) {
   )
 }
 
-// ── Section: Trading summary ───────────────────────────────────────────────
-
-interface TradingSummaryProps {
-  data: {
-    open_positions: number
-    total_invested_usd: number
-    unrealized_pnl_usd: number
-    unrealized_pnl_pct: number
-    realized_pnl_usd: number
-  }
-}
-
-function TradingSummary({ data }: TradingSummaryProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-3.5 w-3.5 text-primary" />
-          Trading
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-xs text-muted-foreground">Posiciones abiertas</span>
-          <span className="font-mono text-sm font-medium">{data.open_positions}</span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-xs text-muted-foreground">Capital invertido</span>
-          <span className="font-mono text-sm font-medium text-foreground">
-            {formatCurrency(data.total_invested_usd, 'USD')}
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-xs text-muted-foreground">P&L no realizado</span>
-          <div className="flex items-center gap-2">
-            <span
-              className={`font-mono text-sm font-medium ${data.unrealized_pnl_usd >= 0 ? 'text-profit' : 'text-loss'}`}
-            >
-              {formatCurrency(data.unrealized_pnl_usd, 'USD')}
-            </span>
-            <Badge variant={data.unrealized_pnl_pct >= 0 ? 'profit' : 'loss'} className="text-[10px]">
-              {formatPercent(data.unrealized_pnl_pct)}
-            </Badge>
-          </div>
-        </div>
-        <div className="flex justify-between items-center py-2">
-          <span className="text-xs text-muted-foreground">P&L realizado</span>
-          <span
-            className={`font-mono text-sm font-medium ${data.realized_pnl_usd >= 0 ? 'text-profit' : 'text-loss'}`}
-          >
-            {formatCurrency(data.realized_pnl_usd, 'USD')}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-// ── Section: DCA summary ───────────────────────────────────────────────────
-
-interface DcaSummaryProps {
-  data: {
-    active_strategies: number
-    total_invested_usd: number
-    net_invested_usd: number
-  }
-}
-
-function DcaSummary({ data }: DcaSummaryProps) {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BarChart3 className="h-3.5 w-3.5 text-primary" />
-          DCA
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-xs text-muted-foreground">Estrategias activas</span>
-          <span className="font-mono text-sm font-medium">{data.active_strategies}</span>
-        </div>
-        <div className="flex justify-between items-center py-2 border-b border-border">
-          <span className="text-xs text-muted-foreground">Total invertido</span>
-          <span className="font-mono text-sm font-medium text-foreground">
-            {formatCurrency(data.total_invested_usd, 'USD')}
-          </span>
-        </div>
-        <div className="flex justify-between items-center py-2">
-          <span className="text-xs text-muted-foreground">Capital neto</span>
-          <span
-            className={`font-mono text-sm font-medium ${data.net_invested_usd >= 0 ? 'text-profit' : 'text-loss'}`}
-          >
-            {formatCurrency(data.net_invested_usd, 'USD')}
-          </span>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 // ── Main page ──────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
   const { data, isLoading, isError, refetch } = useDashboard()
-  const { currency } = useCurrencyStore()
   const syncPrices = useSyncPrices()
 
   const delay = (i: number): React.CSSProperties => ({
@@ -154,25 +57,21 @@ export default function DashboardPage() {
     )
   }
 
-  const capitalValue =
-    currency === 'USD'
-      ? formatCurrency(data?.capital.total_usd ?? 0, 'USD')
-      : formatCurrency(data?.capital.total_ars ?? 0, 'ARS')
-
-  const capitalSub =
-    currency === 'USD'
-      ? `ARS ${formatNumber(data?.capital.total_ars ?? 0, 0)}`
-      : `USD ${formatNumber(data?.capital.total_usd ?? 0, 2)}`
+  const totalInvestedUsd = parseFloat(data?.trading.totalInvestedUsd ?? '0')
+  const totalDcaUsd = parseFloat(data?.dca.totalDcaCapitalUsd ?? '0')
+  const cclRate = data?.latestCclRate?.rate
+    ? parseFloat(data.latestCclRate.rate)
+    : null
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Header row */}
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-display font-bold tracking-tight">Dashboard</h1>
-          {data && (
+          {cclRate && (
             <p className="text-xs text-muted-foreground mt-0.5">
-              CCL hoy: ${formatNumber(data.ccl_today ?? data.capital.ccl_rate, 2)}
+              CCL: ${formatNumber(cclRate, 2)}
             </p>
           )}
         </div>
@@ -188,6 +87,16 @@ export default function DashboardPage() {
         </Button>
       </div>
 
+      {/* Sync feedback */}
+      {syncPrices.isSuccess && syncPrices.data && (
+        <div className="rounded-md border border-profit/30 bg-profit/10 px-4 py-2 text-sm text-profit font-mono">
+          Precios actualizados: {syncPrices.data.updated} activos
+          {syncPrices.data.failed.length > 0 && (
+            <span className="text-warn"> · Fallaron: {syncPrices.data.failed.join(', ')}</span>
+          )}
+        </div>
+      )}
+
       {/* KPI grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {isLoading || !data ? (
@@ -197,60 +106,92 @@ export default function DashboardPage() {
         ) : (
           <>
             <KpiCard
-              label={`Capital ${currency}`}
-              value={capitalValue}
-              subValue={capitalSub}
-              icon={Wallet}
+              label="Posiciones abiertas"
+              value={String(data.trading.openPositionsCount)}
+              subValue={`${data.trading.closedPositionsCount} cerradas`}
+              icon={TrendingUp}
+              linkTo="/trading"
               style={delay(0)}
             />
             <KpiCard
-              label="P&L no realizado"
-              value={formatCurrency(data!.trading.unrealized_pnl_usd, 'USD')}
-              subValue="en posiciones abiertas"
-              trend={data!.trading.unrealized_pnl_pct}
-              icon={data!.trading.unrealized_pnl_usd >= 0 ? TrendingUp : TrendingDown}
+              label="Capital trading"
+              value={formatCurrency(totalInvestedUsd, 'USD')}
+              subValue="total invertido (compras)"
+              icon={Wallet}
               style={delay(1)}
             />
             <KpiCard
-              label="P&L realizado"
-              value={formatCurrency(data!.trading.realized_pnl_usd, 'USD')}
-              subValue="operaciones cerradas"
-              icon={DollarSign}
+              label="DCA activos"
+              value={String(data.dca.activeDcaCount)}
+              subValue="estrategias en curso"
+              icon={BarChart3}
+              linkTo="/dca"
               style={delay(2)}
             />
             <KpiCard
-              label="Posiciones abiertas"
-              value={String(data!.trading.open_positions)}
-              subValue={`${formatCurrency(data!.trading.total_invested_usd, 'USD')} invertidos`}
-              icon={TrendingUp}
-              linkTo="/trading"
-              style={delay(3)}
-            />
-            <KpiCard
-              label="DCA activos"
-              value={String(data!.dca.active_strategies)}
-              subValue={`${formatCurrency(data!.dca.net_invested_usd, 'USD')} neto`}
-              icon={BarChart3}
-              linkTo="/dca"
-              style={delay(4)}
-            />
-            <KpiCard
               label="Capital DCA"
-              value={formatCurrency(data!.dca.total_invested_usd, 'USD')}
-              subValue="total acumulado"
-              icon={BarChart3}
-              style={delay(5)}
+              value={formatCurrency(totalDcaUsd, 'USD')}
+              subValue="capital acumulado"
+              icon={DollarSign}
+              style={delay(3)}
             />
           </>
         )}
       </div>
 
-      {/* Summary cards */}
-      {data && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <TradingSummary data={data.trading} />
-          <DcaSummary data={data.dca} />
-        </div>
+      {/* Open positions detail */}
+      {data && data.trading.openPositions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-3.5 w-3.5 text-primary" />
+              Posiciones abiertas
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {data.trading.openPositions.map((pos) => {
+              const units = parseFloat(pos.openUnits)
+              const avgCost = parseFloat(pos.avgCostUsd)
+              const currentPrice = pos.currentPriceUsd ? parseFloat(pos.currentPriceUsd) : null
+              const invested = units * avgCost
+              const currentValue = currentPrice ? units * currentPrice : null
+              const pnl = currentValue != null ? currentValue - invested : null
+              const pnlPct = pnl != null && invested > 0 ? (pnl / invested) * 100 : null
+
+              return (
+                <div
+                  key={pos.positionId}
+                  className="flex items-center justify-between py-2 border-b border-border last:border-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="font-mono font-bold text-sm w-16">{pos.ticker}</span>
+                    <span className="text-xs text-muted-foreground">{pos.portfolioName}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-right">
+                    <div className="hidden sm:block">
+                      <p className="text-xs text-muted-foreground">Invertido</p>
+                      <p className="font-mono text-xs">{formatCurrency(invested, 'USD')}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">
+                        {pos.priceStale ? 'Sin precio' : 'P&L est.'}
+                      </p>
+                      <p
+                        className={`font-mono text-xs font-medium ${
+                          pnl == null ? 'text-muted-foreground' : pnl >= 0 ? 'text-profit' : 'text-loss'
+                        }`}
+                      >
+                        {pnl != null
+                          ? `${pnl >= 0 ? '+' : ''}${formatCurrency(pnl, 'USD')} (${formatNumber(pnlPct!, 1)}%)`
+                          : '—'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
       )}
     </div>
   )
