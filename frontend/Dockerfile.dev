@@ -1,0 +1,17 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Copy package files and install deps
+# (node_modules will be overridden by volume mount in prod,
+#  but we install here so the image works standalone too)
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+# Source is mounted as a volume — no COPY src needed for dev
+EXPOSE 5173
+
+CMD ["pnpm", "dev", "--host", "0.0.0.0"]
