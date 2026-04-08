@@ -95,13 +95,13 @@ Gestión de activos, brokers y carteras.
 
 | # | Componente / Vista | Descripción | Impl | Revisado |
 |---|-------------------|-------------|------|---------|
-| 5.1 | `ConfigPage` | Tabs: Activos / Brokers / Carteras | ⬜ | ⬜ |
-| 5.2 | `AssetTable` | Tabla de activos con badge de tipo, moneda, fuente precio | ⬜ | ⬜ |
-| 5.3 | `AssetDialog` | Form crear/editar activo | ⬜ | ⬜ |
-| 5.4 | `BrokerTable` | Tabla de brokers con comisión y moneda | ⬜ | ⬜ |
-| 5.5 | `BrokerDialog` | Form crear/editar broker | ⬜ | ⬜ |
-| 5.6 | `PortfolioTable` | Tabla de carteras con tipo y estrategia | ⬜ | ⬜ |
-| 5.7 | `PortfolioDialog` | Form crear/editar cartera | ⬜ | ⬜ |
+| 5.1 | `ConfigPage` | Tabs: Activos / Brokers / Carteras | ✅ | ✅ |
+| 5.2 | `AssetTable` | Tabla de activos con badge de tipo, moneda, fuente precio | ✅ | ✅ |
+| 5.3 | `AssetDialog` | Form crear/editar activo | ✅ | ✅ |
+| 5.4 | `BrokerTable` | Tabla de brokers con comisión y moneda | ✅ | ✅ |
+| 5.5 | `BrokerDialog` | Form crear/editar broker | ✅ | ✅ |
+| 5.6 | `PortfolioTable` | Tabla de carteras con tipo y estrategia | ✅ | ✅ |
+| 5.7 | `PortfolioDialog` | Form crear/editar cartera | ✅ | ✅ |
 
 ---
 
@@ -109,10 +109,10 @@ Gestión de activos, brokers y carteras.
 
 | # | Componente / Vista | Descripción | Impl | Revisado |
 |---|-------------------|-------------|------|---------|
-| 6.1 | `PricesSyncButton` | Botón sync global de precios con loading/feedback | ⬜ | ⬜ |
-| 6.2 | `CclHistoryPage` | Tabla CCL histórico con filtro por rango de fechas | ⬜ | ⬜ |
-| 6.3 | `CclSyncButton` | Sync CCL desde Ambito con feedback de registros nuevos | ⬜ | ⬜ |
-| 6.4 | `ManualCclDialog` | Cargar CCL manual para una fecha | ⬜ | ⬜ |
+| 6.1 | `PricesSyncButton` | Botón sync global de precios con loading/feedback | ✅ | ✅ |
+| 6.2 | `CclHistoryPage` | Tabla CCL histórico ordenada por fecha desc | ✅ | ✅ |
+| 6.3 | `CclSyncButton` | Sync CCL desde Ambito con feedback de registros nuevos | ✅ | ✅ |
+| 6.4 | `ManualCclDialog` | Cargar CCL manual para una fecha | ✅ | ✅ |
 
 ---
 
@@ -125,6 +125,6 @@ Gestión de activos, brokers y carteras.
 | 2 — Dashboard | 6 | 6 | 6 |
 | 3 — Trading | 8 | 8 | 8 |
 | 4 — DCA | 8 | 8 | 8 |
-| 5 — Config | 7 | 0 | 0 |
-| 6 — Precios/CCL | 4 | 0 | 0 |
-| **Total** | **49** | **38** | **38** |
+| 5 — Config | 7 | 7 | 7 |
+| 6 — Precios/CCL | 4 | 4 | 4 |
+| **Total** | **49** | **49** | **49** |
