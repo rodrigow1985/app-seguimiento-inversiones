@@ -46,12 +46,12 @@ Vista principal. Resumen de capital, P&L total, posiciones abiertas y DCA activo
 
 | # | Componente / Vista | Descripción | Impl | Revisado |
 |---|-------------------|-------------|------|---------|
-| 2.1 | `DashboardPage` | Página raíz, grid de cards | ⬜ | ⬜ |
-| 2.2 | `KpiCard` | Card genérica: label + valor + variación % | ⬜ | ⬜ |
-| 2.3 | Cards: Capital total ARS/USD | Con toggle de moneda | ⬜ | ⬜ |
-| 2.4 | Cards: P&L total + P&L % | | ⬜ | ⬜ |
-| 2.5 | Cards: Posiciones abiertas / DCA activos | Links a sus módulos | ⬜ | ⬜ |
-| 2.6 | `CclBadge` | Muestra CCL del día (con botón sync) | ⬜ | ⬜ |
+| 2.1 | `DashboardPage` | Página raíz, grid de cards | ✅ | ✅ |
+| 2.2 | `KpiCard` | Card genérica: label + valor + variación % | ✅ | ✅ |
+| 2.3 | Cards: Capital total ARS/USD | Con toggle de moneda (Zustand) | ✅ | ✅ |
+| 2.4 | Cards: P&L total + P&L % | Con badge profit/loss | ✅ | ✅ |
+| 2.5 | Cards: Posiciones abiertas / DCA activos | Links a /trading y /dca | ✅ | ✅ |
+| 2.6 | `CclBadge` | Muestra CCL del día (con botón sync) en header | ✅ | ✅ |
 
 ---
 
@@ -122,9 +122,9 @@ Gestión de activos, brokers y carteras.
 |------|-------------|---------------|-----------|
 | 0 — Setup | 8 | 8 | 8 |
 | 1 — Capa API | 8 | 8 | 8 |
-| 2 — Dashboard | 6 | 0 | 0 |
+| 2 — Dashboard | 6 | 6 | 6 |
 | 3 — Trading | 8 | 0 | 0 |
 | 4 — DCA | 8 | 0 | 0 |
 | 5 — Config | 7 | 0 | 0 |
 | 6 — Precios/CCL | 4 | 0 | 0 |
-| **Total** | **49** | **16** | **16** |
+| **Total** | **49** | **22** | **22** |

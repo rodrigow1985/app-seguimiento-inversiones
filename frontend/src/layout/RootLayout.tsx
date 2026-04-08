@@ -11,6 +11,7 @@ import {
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useCurrencyStore } from '@/store/currency'
+import { CclBadge } from '@/modules/dashboard/components/CclBadge'
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, exact: true },
@@ -64,14 +65,6 @@ function CurrencyToggle() {
   )
 }
 
-function CclBadgePlaceholder() {
-  return (
-    <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-border bg-muted/50 px-3 py-1">
-      <span className="text-xs text-muted-foreground font-mono">CCL</span>
-      <span className="text-xs font-mono font-medium text-foreground">—</span>
-    </div>
-  )
-}
 
 export function RootLayout() {
   const [collapsed, setCollapsed] = useState(false)
@@ -145,7 +138,7 @@ export function RootLayout() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
-            <CclBadgePlaceholder />
+            <div className="hidden sm:block"><CclBadge /></div>
             <CurrencyToggle />
           </div>
         </header>
