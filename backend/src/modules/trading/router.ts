@@ -3,7 +3,7 @@ import { listPositionsSchema, createPositionSchema, addTradeSchema, updateTradeS
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const tradingRouter = Router()
+export const tradingRouter: import('express').Router = Router()
 
 // ── Positions ──────────────────────────────────────────────────────────────────
 

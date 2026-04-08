@@ -11,7 +11,7 @@ import { dcaRouter } from './modules/dca/router'
 import { pricesRouter, pricesSyncRouter } from './modules/prices/router'
 import { dashboardRouter } from './modules/dashboard/router'
 
-export function createApp() {
+export function createApp(): import('express').Application {
   const app = express()
 
   // ── Middlewares globales ──────────────────────────────────────────────────

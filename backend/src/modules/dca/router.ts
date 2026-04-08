@@ -10,7 +10,7 @@ import {
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const dcaRouter = Router()
+export const dcaRouter: import('express').Router = Router()
 
 // ── Strategies ─────────────────────────────────────────────────────────────────
 

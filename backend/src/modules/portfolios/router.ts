@@ -3,7 +3,7 @@ import { listPortfoliosSchema, createPortfolioSchema, updatePortfolioSchema } fr
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const portfoliosRouter = Router()
+export const portfoliosRouter: import('express').Router = Router()
 
 portfoliosRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {

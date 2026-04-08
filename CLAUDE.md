@@ -28,8 +28,12 @@ App personal de seguimiento de inversiones financieras que reemplaza un Excel. M
 ## Comandos Esenciales
 
 ```bash
+# Infraestructura (Docker)
+docker-compose up -d              # Levanta backend + postgres + pgadmin + docs
+docker-compose up -d postgres     # Solo la DB (para correr backend local)
+
 # Desarrollo
-pnpm dev:backend        # Backend en http://localhost:3001
+pnpm dev:backend        # Backend local con hot-reload (requiere postgres en Docker)
 pnpm dev:frontend       # Frontend en http://localhost:5173
 
 # Base de datos
@@ -160,6 +164,19 @@ Leer antes de proponer cambios estructurales:
 - [`docs/architecture/adr/001-stack-selection.md`](docs/architecture/adr/001-stack-selection.md) — Por qué PostgreSQL + Express + React
 - [`docs/architecture/adr/002-dual-currency.md`](docs/architecture/adr/002-dual-currency.md) — Manejo de ARS/USD con CCL histórico
 - [`docs/architecture/adr/003-trading-vs-dca.md`](docs/architecture/adr/003-trading-vs-dca.md) — Por qué Trading y DCA son modelos separados
+
+---
+
+## Control de Progreso del Backend
+
+El archivo `backend/code_progress/plan.md` es el registro oficial de avance de implementación.
+
+**Regla obligatoria**: cada vez que termines de implementar Y testear un endpoint del backend:
+1. Cambiar ⬜ → ✅ en las columnas "Impl" y "Test" de ese endpoint en `plan.md`
+2. Actualizar los contadores en la tabla "Progreso general" al final del archivo
+3. Si está implementado pero sin tests todavía, marcarlo 🔄
+
+Nunca omitir esta actualización. Es parte del proceso de cada endpoint.
 
 ---
 

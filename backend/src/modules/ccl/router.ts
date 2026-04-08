@@ -3,7 +3,7 @@ import { listCclSchema, createCclSchema, updateCclSchema } from './schema'
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const cclRouter = Router()
+export const cclRouter: import('express').Router = Router()
 
 cclRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {

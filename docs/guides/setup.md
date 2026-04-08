@@ -2,9 +2,9 @@
 
 ## Requisitos
 
-- Node.js 20 LTS o superior
+- Node.js 20 LTS o superior (solo para el frontend en dev)
 - pnpm (`npm install -g pnpm`)
-- Docker (para PostgreSQL) o PostgreSQL 16 instalado localmente
+- Docker y Docker Compose
 
 ## 1. Clonar y preparar
 
@@ -21,49 +21,52 @@ cp backend/.env.example backend/.env
 ```
 
 Editar `backend/.env` con los valores correctos (ver comentarios en el archivo).
+El `.env` se usa para los scripts locales (tests, seeds, prisma studio). En Docker las variables se pasan directamente por el `docker-compose.yml`.
 
-## 3. Levantar PostgreSQL
+## 3. Levantar la infraestructura con Docker
 
 ```bash
-# Con Docker (recomendado)
+# Levanta postgres, backend y docs
+docker-compose up -d
+
+# Solo la base de datos (si querés correr el backend local)
 docker-compose up -d postgres
-
-# Verificar que está corriendo
-docker-compose ps
 ```
 
-## 4. Configurar la base de datos
+Servicios disponibles:
+| Servicio | URL |
+|----------|-----|
+| Backend API | http://localhost:3001 |
+| pgAdmin | http://localhost:5050 |
+| Documentación | http://localhost:3002 |
+
+> **Nota:** El backend corre dentro de Docker. Al iniciar, aplica automáticamente las migrations pendientes (`prisma migrate deploy`).
+
+## 4. Poblar datos iniciales
 
 ```bash
-# Aplica el schema (crea todas las tablas)
-pnpm db:migrate
-
-# Pobla datos iniciales (brokers, activos conocidos)
+# Pobla brokers y activos conocidos
 pnpm db:seed
-```
 
-## 5. Importar datos históricos
-
-```bash
-# Importar CCL histórico desde el Excel original
+# Importar CCL histórico (opcional)
 pnpm db:import-ccl
 
-# Importar operaciones históricas (opcional, ver docs/guides/data-migration.md)
+# Importar operaciones del Excel original (opcional)
 pnpm db:import-excel
 ```
 
-## 6. Levantar en desarrollo
+## 5. Levantar el frontend (desarrollo local)
 
 ```bash
-# En terminales separadas:
-pnpm dev:backend    # http://localhost:3001
 pnpm dev:frontend   # http://localhost:5173
 ```
+
+El frontend es el único servicio que corre local — el backend y la DB están en Docker.
 
 ## Verificar que todo funciona
 
 ```bash
-# Health check del backend
+# Health check del backend (desde Docker)
 curl http://localhost:3001/health
 
 # Prisma Studio (explorador visual de la DB)
@@ -74,7 +77,16 @@ pnpm db:studio     # http://localhost:5555
 
 ```bash
 pnpm typecheck          # Verificar tipos TypeScript
-pnpm test               # Correr tests
+pnpm test               # Correr tests (requiere postgres corriendo)
 pnpm lint               # Linting
 pnpm db:reset           # Resetear DB completamente (DESTRUCTIVO)
+```
+
+## Desarrollo del backend (sin Docker)
+
+Si necesitás iterar rápido en el backend sin reconstruir la imagen:
+
+```bash
+docker-compose up -d postgres      # Solo la DB en Docker
+pnpm dev:backend                   # Backend local con hot-reload
 ```

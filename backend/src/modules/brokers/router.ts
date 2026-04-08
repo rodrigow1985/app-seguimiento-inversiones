@@ -3,7 +3,7 @@ import { listBrokersSchema, createBrokerSchema, updateBrokerSchema } from './sch
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const brokersRouter = Router()
+export const brokersRouter: import('express').Router = Router()
 
 brokersRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {
   try {

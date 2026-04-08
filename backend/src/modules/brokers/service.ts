@@ -1,16 +1,15 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../lib/prisma'
 import { NotFoundError, ValidationError } from '../../lib/errors'
 import type { ListBrokersQuery, CreateBrokerBody, UpdateBrokerBody } from './schema'
 
 export async function listBrokers(query: ListBrokersQuery) {
-  const { isActive, page, limit } = query
+  const { page, limit } = query
   const skip = (page - 1) * limit
 
-  const where = isActive !== undefined ? { isActive } : {}
-
   const [data, total] = await Promise.all([
-    prisma.broker.findMany({ where, skip, take: limit, orderBy: { name: 'asc' } }),
-    prisma.broker.count({ where }),
+    prisma.broker.findMany({ skip, take: limit, orderBy: { name: 'asc' } }),
+    prisma.broker.count(),
   ])
 
   return { data, meta: { total, page, limit, pages: Math.ceil(total / limit) } }
@@ -30,12 +29,23 @@ export async function createBroker(body: CreateBrokerBody) {
     ])
   }
 
-  return prisma.broker.create({ data: body })
+  return prisma.broker.create({
+    data: {
+      ...body,
+      config: body.config as Prisma.InputJsonValue | undefined,
+    },
+  })
 }
 
 export async function updateBroker(id: string, body: UpdateBrokerBody) {
   await getBrokerById(id)
-  return prisma.broker.update({ where: { id }, data: body })
+  return prisma.broker.update({
+    where: { id },
+    data: {
+      ...body,
+      config: body.config as Prisma.InputJsonValue | undefined,
+    },
+  })
 }
 
 export async function deleteBroker(id: string) {

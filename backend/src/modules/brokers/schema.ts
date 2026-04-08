@@ -3,10 +3,6 @@ import { z } from 'zod'
 const CurrencyEnum = z.enum(['ARS', 'USD'])
 
 export const listBrokersSchema = z.object({
-  isActive: z
-    .string()
-    .optional()
-    .transform((v) => (v === undefined ? undefined : v === 'true')),
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(200).default(50),
 })
