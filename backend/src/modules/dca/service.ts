@@ -34,7 +34,7 @@ function enrichStrategy(strategy: {
     .reduce((sum, e) => sum + e.amountUsd.toNumber(), 0)
 
   // profitLossUsd es el P&L real de cada cierre (puede ser negativo = pérdida)
-  const cierreEntries = entries.filter((e) => e.type === 'CIERRE') as Array<{
+  const cierreEntries = entries.filter((e) => e.type === 'CIERRE') as unknown as Array<{
     amountUsd: { toNumber(): number }
     profitLossUsd: { toNumber(): number } | null
   }>
