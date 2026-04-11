@@ -9,6 +9,9 @@ import { DcaStatsBar } from './components/DcaStatsBar'
 import { DcaStrategyGuideSheet } from './components/DcaStrategyGuideSheet'
 import { NewStrategyDialog } from './components/NewStrategyDialog'
 
+const ASSET_FILTERS = ['Todos', 'ETH', 'ADA', 'PAXG'] as const
+type AssetFilter = typeof ASSET_FILTERS[number]
+
 function StrategySkeleton() {
   return (
     <Card className="h-36">
@@ -26,9 +29,14 @@ function StrategySkeleton() {
 
 export default function DcaPage() {
   const [tab, setTab] = useState<'ACTIVE' | 'CLOSED'>('ACTIVE')
+  const [assetFilter, setAssetFilter] = useState<AssetFilter>('Todos')
   const [newOpen, setNewOpen] = useState(false)
 
-  const { data: strategies, isLoading, isError, refetch } = useDcaStrategies(tab)
+  const { data: allStrategies, isLoading, isError, refetch } = useDcaStrategies(tab)
+
+  const strategies = assetFilter === 'Todos'
+    ? allStrategies
+    : allStrategies?.filter((s) => s.asset.ticker === assetFilter)
 
   return (
     <div className="space-y-5 animate-fade-up">
@@ -48,6 +56,23 @@ export default function DcaPage() {
 
       <DcaStatsBar />
 
+      {/* Filtro por activo */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        {ASSET_FILTERS.map((f) => (
+          <button
+            key={f}
+            onClick={() => setAssetFilter(f)}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors
+              ${assetFilter === f
+                ? 'bg-primary text-primary-foreground'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground'
+              }`}
+          >
+            {f}
+          </button>
+        ))}
+      </div>
+
       <Tabs value={tab} onValueChange={(v) => setTab(v as 'ACTIVE' | 'CLOSED')}>
         <TabsList>
           <TabsTrigger value="ACTIVE">Activas</TabsTrigger>
@@ -60,7 +85,7 @@ export default function DcaPage() {
             isLoading={isLoading}
             isError={isError}
             onRetry={refetch}
-            emptyText="No tenés estrategias DCA activas"
+            emptyText={assetFilter === 'Todos' ? 'No tenés estrategias DCA activas' : `No hay estrategias ${assetFilter} activas`}
           />
         </TabsContent>
         <TabsContent value="CLOSED">
@@ -69,7 +94,7 @@ export default function DcaPage() {
             isLoading={isLoading}
             isError={isError}
             onRetry={refetch}
-            emptyText="No tenés estrategias DCA cerradas"
+            emptyText={assetFilter === 'Todos' ? 'No tenés estrategias DCA cerradas' : `No hay estrategias ${assetFilter} cerradas`}
           />
         </TabsContent>
       </Tabs>
