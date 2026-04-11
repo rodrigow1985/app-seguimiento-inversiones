@@ -58,7 +58,44 @@ Para cada entrada de una estrategia, en orden cronológico:
 
 ## Vista en el frontend
 
-1. **Lista de estrategias** — cards con estado (activa/cerrada), capital acumulado, P&L si está cerrada
-2. **Detalle de estrategia** — timeline de entradas, gráfico de capital acumulado vs valor actual, P&L en tiempo real
-3. **Formulario de entrada** — tipo de entrada (Apertura/Incremento/Cierre), monto USD, fecha, notas
-4. **Comparativa** — evolución de todas las estrategias DCA en un mismo gráfico (USD acumulado por estrategia)
+1. **Barra de estadísticas globales** — panel de resumen de todas las operaciones cerradas (ver sección siguiente)
+2. **Lista de estrategias** — cards con estado (activa/cerrada), capital acumulado, P&L si está cerrada
+3. **Detalle de estrategia** — timeline de entradas, gráfico de capital acumulado vs valor actual, P&L en tiempo real
+4. **Formulario de entrada** — tipo de entrada (Apertura/Incremento/Cierre), monto USD, fecha, notas
+5. **Comparativa** — evolución de todas las estrategias DCA en un mismo gráfico (USD acumulado por estrategia)
+
+## Estadísticas globales de cierres
+
+Se muestran en la parte superior de la página DCA, antes de los tabs activas/cerradas. Se calculan siempre sobre el universo completo de estrategias cerradas (independientemente del tab activo).
+
+### Métricas
+
+| Métrica | Definición | Campo fuente |
+|---|---|---|
+| **Total ganado** | Suma de `profitLossUsd` de todas las entradas tipo `CIERRE` en estrategias cerradas | `DcaEntry.profitLossUsd` |
+| **Mejor cierre** | Estrategia con mayor `profitLossUsd` acumulado en sus entradas `CIERRE` | `DcaEntry.profitLossUsd` (max por estrategia) |
+| **Peor cierre** | Estrategia con menor `profitLossUsd` acumulado en sus entradas `CIERRE` | `DcaEntry.profitLossUsd` (min por estrategia) |
+| **Ganancia promedio** | Total ganado / cantidad de estrategias cerradas con P&L registrado | derivado |
+
+### Cálculo
+
+```
+Dado el conjunto C = todas las DcaStrategy con isActive=false
+
+total_ganado = Σ entry.profitLossUsd
+               para cada entry con type=CIERRE
+               en todas las estrategias de C
+
+pnl_por_estrategia[s] = Σ entry.profitLossUsd
+                         para cada entry CIERRE de la estrategia s
+
+mejor_cierre = argmax(pnl_por_estrategia)
+peor_cierre  = argmin(pnl_por_estrategia)
+ganancia_promedio = total_ganado / |{s ∈ C : pnl_por_estrategia[s] ≠ 0}|
+```
+
+### Implementación
+
+Las estadísticas se calculan **client-side** a partir del response de `GET /dca/strategies?isActive=false&limit=200`. No requieren endpoint dedicado porque el volumen de estrategias es acotado (~20–50 por activo) y el response ya incluye las entradas con `profitLossUsd`.
+
+Si el volumen crece considerablemente (> 200 estrategias), migrar el cálculo a un endpoint `GET /dca/stats` en el backend.

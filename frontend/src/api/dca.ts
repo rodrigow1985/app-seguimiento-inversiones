@@ -71,13 +71,14 @@ export const dcaKeys = {
 
 // ── Hooks ──────────────────────────────────────────────────────────────────
 
-export function useDcaStrategies(status?: 'ACTIVE' | 'CLOSED') {
-  const params = status !== undefined
-    ? `?isActive=${status === 'ACTIVE' ? 'true' : 'false'}`
-    : ''
+export function useDcaStrategies(status?: 'ACTIVE' | 'CLOSED', limit = 50) {
+  const params = new URLSearchParams()
+  if (status !== undefined) params.set('isActive', status === 'ACTIVE' ? 'true' : 'false')
+  if (limit !== 50) params.set('limit', String(limit))
+  const qs = params.size > 0 ? `?${params}` : ''
   return useQuery({
     queryKey: dcaKeys.strategiesByStatus(status),
-    queryFn: () => api.get<DcaStrategy[]>(`/dca/strategies${params}`),
+    queryFn: () => api.get<DcaStrategy[]>(`/dca/strategies${qs}`),
   })
 }
 

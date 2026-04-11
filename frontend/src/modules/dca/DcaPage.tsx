@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
 import { DcaStrategyCard } from './components/DcaStrategyCard'
+import { DcaStatsBar } from './components/DcaStatsBar'
 import { NewStrategyDialog } from './components/NewStrategyDialog'
 
 function StrategySkeleton() {
@@ -40,6 +41,8 @@ export default function DcaPage() {
           Nueva estrategia
         </Button>
       </div>
+
+      <DcaStatsBar />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as 'ACTIVE' | 'CLOSED')}>
         <TabsList>
