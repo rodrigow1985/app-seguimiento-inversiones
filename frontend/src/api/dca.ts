@@ -31,7 +31,7 @@ export interface DcaStrategy {
   entries: DcaEntry[]
   summary: {
     total_invested_usd: number
-    total_withdrawn_usd: number
+    profit_loss_usd: number
     net_invested_usd: number
     entry_count: number
   }

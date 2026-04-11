@@ -32,14 +32,23 @@ function enrichStrategy(strategy: {
   const totalInvestedUsd = entries
     .filter((e) => e.type !== 'CIERRE')
     .reduce((sum, e) => sum + e.amountUsd.toNumber(), 0)
-  const totalWithdrawnUsd = entries
-    .filter((e) => e.type === 'CIERRE')
-    .reduce((sum, e) => sum + e.amountUsd.toNumber(), 0)
+
+  // profitLossUsd es el P&L real de cada cierre (puede ser negativo = pérdida)
+  const cierreEntries = entries.filter((e) => e.type === 'CIERRE') as Array<{
+    amountUsd: { toNumber(): number }
+    profitLossUsd: { toNumber(): number } | null
+  }>
+  const profitLossUsd = cierreEntries.reduce(
+    (sum, e) => sum + (e.profitLossUsd?.toNumber() ?? e.amountUsd.toNumber()),
+    0,
+  )
+  // net_invested: capital todavía desplegado (0 si hay CIERRE, porque la posición está cerrada)
+  const netInvestedUsd = cierreEntries.length === 0 ? totalInvestedUsd : 0
 
   const summary = {
     total_invested_usd: totalInvestedUsd,
-    total_withdrawn_usd: totalWithdrawnUsd,
-    net_invested_usd: totalInvestedUsd - totalWithdrawnUsd,
+    profit_loss_usd: profitLossUsd,
+    net_invested_usd: netInvestedUsd,
     entry_count: entries.length,
   }
 
