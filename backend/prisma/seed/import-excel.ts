@@ -40,34 +40,47 @@ interface ExcelRow {
 
 // ─── Parseo de hoja ──────────────────────────────────────────────────────────
 
+// Detecta si el # de la hoja es secuencial por entrada (PAXGUSD) o por grupo (ETH/ADA).
+// En modo secuencial se agrupa por cada Apertura encontrada.
 function parseSheet(wb: XLSX.WorkBook, sheetName: string): Map<number, ExcelRow[]> {
   const ws = wb.Sheets[sheetName]
   if (!ws) throw new Error(`Hoja "${sheetName}" no encontrada`)
 
   const raw = XLSX.utils.sheet_to_json<unknown[]>(ws, { header: 1, defval: '' })
+  const dataRows = raw.slice(4).filter((row): row is unknown[] =>
+    Array.isArray(row) &&
+    typeof row[0] === 'number' && row[0] > 0 &&
+    ['Apertura', 'Incremento', 'Cierre'].includes(String(row[2]).trim())
+  )
 
-  // Datos empiezan en fila índice 4 (después de título, resumen, vacía, encabezados)
+  // Si los dos primeros números distintos son consecutivos (1,2) es numeración secuencial
+  const firstNums = [...new Set(dataRows.map(r => r[0] as number))].slice(0, 2)
+  const isSequential = firstNums.length >= 2 && firstNums[1] === firstNums[0] + 1
+
   const strategies = new Map<number, ExcelRow[]>()
   let lastValidDate: Date | undefined
+  let groupNum = 0
 
-  for (const row of raw.slice(4)) {
-    if (!Array.isArray(row)) continue
-
-    const stratNum = typeof row[0] === 'number' ? row[0] : null
-    if (!stratNum || stratNum <= 0) continue
-
-    const rawType = String(row[2]).trim()
-    if (!['Apertura', 'Incremento', 'Cierre'].includes(rawType)) continue
-    const entryType = rawType.toUpperCase() as DcaEntryType
-
+  for (const row of dataRows) {
+    const rawType = String(row[2]).trim().toUpperCase() as DcaEntryType
     const date = parseExcelDate(row[1], lastValidDate)
     if (date) lastValidDate = date
 
     const amountUsd = typeof row[3] === 'number' ? row[3] : null
     const profitLossUsd = typeof row[7] === 'number' && row[7] !== 0 ? row[7] : null
 
+    let stratNum: number
+    if (isSequential) {
+      // Nueva estrategia cada vez que encontramos una Apertura
+      if (rawType === 'APERTURA') groupNum++
+      if (groupNum === 0) continue
+      stratNum = groupNum
+    } else {
+      stratNum = row[0] as number
+    }
+
     if (!strategies.has(stratNum)) strategies.set(stratNum, [])
-    strategies.get(stratNum)!.push({ strategyNum: stratNum, date, type: entryType, amountUsd, profitLossUsd })
+    strategies.get(stratNum)!.push({ strategyNum: stratNum, date, type: rawType, amountUsd, profitLossUsd })
   }
 
   return strategies
@@ -78,8 +91,9 @@ function parseSheet(wb: XLSX.WorkBook, sheetName: string): Map<number, ExcelRow[
 const EXCEL_PATH = join(__dirname, '../../../docs/copia_original/Inversiones.xlsx')
 
 const SHEETS: Array<{ name: string; ticker: string }> = [
-  { name: 'ETH', ticker: 'ETH' },
-  { name: 'ADA', ticker: 'ADA' },
+  { name: 'ETH',     ticker: 'ETH'  },
+  { name: 'ADA',     ticker: 'ADA'  },
+  { name: 'PAXGUSD', ticker: 'PAXG' },
 ]
 
 async function main() {
