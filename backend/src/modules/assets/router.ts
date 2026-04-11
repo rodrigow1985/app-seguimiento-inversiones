@@ -3,7 +3,7 @@ import { listAssetsSchema, createAssetSchema, updateAssetSchema } from './schema
 import * as service from './service'
 import { ValidationError } from '../../lib/errors'
 
-export const assetsRouter = Router()
+export const assetsRouter: import('express').Router = Router()
 
 // GET /assets
 assetsRouter.get('/', async (req: Request, res: Response, next: NextFunction) => {

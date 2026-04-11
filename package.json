@@ -15,5 +15,8 @@
     "db:reset": "pnpm --filter backend db:reset",
     "db:import-ccl": "pnpm --filter backend db:import-ccl",
     "db:import-excel": "pnpm --filter backend db:import-excel"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }
