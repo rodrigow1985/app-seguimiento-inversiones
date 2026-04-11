@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card } from '@/components/ui/card'
 import { DcaStrategyCard } from './components/DcaStrategyCard'
 import { DcaStatsBar } from './components/DcaStatsBar'
+import { DcaStrategyGuideSheet } from './components/DcaStrategyGuideSheet'
 import { NewStrategyDialog } from './components/NewStrategyDialog'
 
 function StrategySkeleton() {
@@ -36,10 +37,13 @@ export default function DcaPage() {
           <h1 className="text-xl font-display font-bold tracking-tight">DCA</h1>
           <p className="text-xs text-muted-foreground mt-0.5">Estrategias de acumulación</p>
         </div>
-        <Button size="sm" onClick={() => setNewOpen(true)} className="gap-1.5">
-          <Plus className="h-3.5 w-3.5" />
-          Nueva estrategia
-        </Button>
+        <div className="flex items-center gap-2">
+          <DcaStrategyGuideSheet />
+          <Button size="sm" onClick={() => setNewOpen(true)} className="gap-1.5">
+            <Plus className="h-3.5 w-3.5" />
+            Nueva estrategia
+          </Button>
+        </div>
       </div>
 
       <DcaStatsBar />

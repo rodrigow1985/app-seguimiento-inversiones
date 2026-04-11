@@ -56,6 +56,16 @@ Para cada entrada de una estrategia, en orden cronológico:
           profit_loss_usd = amount_usd - costo_proporcional
 ```
 
+## Guía de estrategia
+
+Las reglas operativas de las estrategias AntiVitalik (ETH) y AntiADA están documentadas en
+[`docs/modules/dca-strategy-guide.md`](./dca-strategy-guide.md).
+
+En el frontend se expone mediante un botón **"Ver guía"** en el header de la página DCA que abre
+un Sheet lateral con el contenido de la guía. El componente es `DcaStrategyGuideSheet`.
+
+---
+
 ## Vista en el frontend
 
 1. **Barra de estadísticas globales** — panel de resumen de todas las operaciones cerradas (ver sección siguiente)
