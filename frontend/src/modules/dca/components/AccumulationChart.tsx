@@ -17,15 +17,16 @@ interface ChartPoint {
 }
 
 function buildChartData(entries: DcaEntry[]): ChartPoint[] {
-  const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date))
+  const sorted = [...entries].sort((a, b) => a.entryDate.localeCompare(b.entryDate))
   let accumulated = 0
   return sorted.map((e) => {
-    const delta = e.type === 'CIERRE' ? -e.amount_usd : e.amount_usd
+    const amount = Number(e.amountUsd)
+    const delta = e.type === 'CIERRE' ? -amount : amount
     accumulated += delta
     return {
-      date: formatDate(e.date),
+      date: formatDate(e.entryDate),
       accumulated: Math.max(0, accumulated),
-      entry: e.amount_usd,
+      entry: amount,
     }
   })
 }

@@ -44,6 +44,19 @@ dcaRouter.patch('/strategies/:id', async (req: Request, res: Response, next: Nex
   } catch (err) { next(err) }
 })
 
+dcaRouter.patch('/strategies/:id/close', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    res.json({ data: await service.updateStrategy(req.params.id, { isActive: false }) })
+  } catch (err) { next(err) }
+})
+
+dcaRouter.delete('/strategies/:strategyId/entries/:entryId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    await service.deleteEntry(req.params.entryId)
+    res.status(204).send()
+  } catch (err) { next(err) }
+})
+
 // ── Entries ────────────────────────────────────────────────────────────────────
 
 dcaRouter.get('/strategies/:id/entries', async (req: Request, res: Response, next: NextFunction) => {

@@ -4,34 +4,32 @@ import { api } from './client'
 // ── Types ──────────────────────────────────────────────────────────────────
 
 export interface DcaEntry {
-  id: number
-  strategy_id: number
+  id: string
+  strategyId: string
   type: 'APERTURA' | 'INCREMENTO' | 'CIERRE'
-  date: string
-  amount_usd: number
-  amount_ars: number | null
-  asset_price: number | null
-  ccl_rate: number | null
+  entryDate: string
+  amountUsd: number
+  amountArs: number | null
+  assetPriceAtEntry: number | null
+  unitsReceived: number | null
+  profitLossUsd: number | null
+  cclRate: { rate: number } | null
   notes: string | null
-  created_at: string
+  createdAt: string
 }
 
 export interface DcaStrategy {
-  id: number
-  portfolio_id: number
-  asset_id: number
-  broker_id: number
+  id: string
   name: string
-  status: 'ACTIVE' | 'CLOSED'
-  started_at: string
-  closed_at: string | null
+  isActive: boolean
+  startedAt: string
   notes: string | null
-  created_at: string
-  asset: { ticker: string; name: string; currency: 'ARS' | 'USD' }
+  createdAt: string
+  asset: { ticker: string; name: string; currencyNative: 'ARS' | 'USD' }
   broker: { name: string }
   portfolio: { name: string }
   entries: DcaEntry[]
-  summary?: {
+  summary: {
     total_invested_usd: number
     total_withdrawn_usd: number
     net_invested_usd: number
@@ -40,21 +38,22 @@ export interface DcaStrategy {
 }
 
 export interface CreateStrategyInput {
-  portfolio_id: number
-  asset_id: number
-  broker_id: number
+  portfolioId: string
+  assetId: string
+  brokerId: string
   name: string
-  started_at: string
+  startedAt: string
   notes?: string
 }
 
 export interface CreateDcaEntryInput {
   type: DcaEntry['type']
-  date: string
-  amount_usd: number
-  amount_ars?: number
-  asset_price?: number
-  ccl_rate?: number
+  entryDate: string
+  amountUsd: number
+  amountArs?: number
+  assetPriceAtEntry?: number
+  unitsReceived?: number
+  profitLossUsd?: number
   notes?: string
 }
 
@@ -67,20 +66,22 @@ export const dcaKeys = {
   strategies: () => [...dcaKeys.all, 'strategies'] as const,
   strategiesByStatus: (status?: 'ACTIVE' | 'CLOSED') =>
     [...dcaKeys.strategies(), { status }] as const,
-  strategy: (id: number) => [...dcaKeys.all, 'strategy', id] as const,
+  strategy: (id: string) => [...dcaKeys.all, 'strategy', id] as const,
 }
 
 // ── Hooks ──────────────────────────────────────────────────────────────────
 
 export function useDcaStrategies(status?: 'ACTIVE' | 'CLOSED') {
-  const params = status ? `?status=${status}` : ''
+  const params = status !== undefined
+    ? `?isActive=${status === 'ACTIVE' ? 'true' : 'false'}`
+    : ''
   return useQuery({
     queryKey: dcaKeys.strategiesByStatus(status),
     queryFn: () => api.get<DcaStrategy[]>(`/dca/strategies${params}`),
   })
 }
 
-export function useDcaStrategy(id: number) {
+export function useDcaStrategy(id: string) {
   return useQuery({
     queryKey: dcaKeys.strategy(id),
     queryFn: () => api.get<DcaStrategy>(`/dca/strategies/${id}`),
@@ -100,21 +101,24 @@ export function useCreateStrategy() {
 export function useCloseStrategy() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) =>
+    mutationFn: (id: string) =>
       api.patch<DcaStrategy>(`/dca/strategies/${id}/close`, {}),
-    onSuccess: () => qc.invalidateQueries({ queryKey: dcaKeys.strategies() }),
+    onSuccess: (_, id) => {
+      qc.invalidateQueries({ queryKey: dcaKeys.strategies() })
+      qc.invalidateQueries({ queryKey: dcaKeys.strategy(id) })
+    },
   })
 }
 
 export function useDeleteStrategy() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (id: number) => api.delete<void>(`/dca/strategies/${id}`),
+    mutationFn: (id: string) => api.delete<void>(`/dca/strategies/${id}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: dcaKeys.strategies() }),
   })
 }
 
-export function useAddDcaEntry(strategyId: number) {
+export function useAddDcaEntry(strategyId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: CreateDcaEntryInput) =>
@@ -123,7 +127,7 @@ export function useAddDcaEntry(strategyId: number) {
   })
 }
 
-export function useUpdateDcaEntry(strategyId: number, entryId: number) {
+export function useUpdateDcaEntry(strategyId: string, entryId: string) {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (input: UpdateDcaEntryInput) =>
@@ -132,10 +136,10 @@ export function useUpdateDcaEntry(strategyId: number, entryId: number) {
   })
 }
 
-export function useDeleteDcaEntry(strategyId: number) {
+export function useDeleteDcaEntry(strategyId: string) {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: (entryId: number) =>
+    mutationFn: (entryId: string) =>
       api.delete<void>(`/dca/strategies/${strategyId}/entries/${entryId}`),
     onSuccess: () => qc.invalidateQueries({ queryKey: dcaKeys.strategy(strategyId) }),
   })

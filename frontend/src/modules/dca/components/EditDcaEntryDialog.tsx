@@ -8,40 +8,38 @@ import { Label } from '@/components/ui/label'
 import { useUpdateDcaEntry, type DcaEntry, type UpdateDcaEntryInput } from '@/api/dca'
 
 interface EditDcaEntryDialogProps {
-  strategyId: number
+  strategyId: string
   entry: DcaEntry | null
   open: boolean
   onOpenChange: (open: boolean) => void
 }
 
 export function EditDcaEntryDialog({ strategyId, entry, open, onOpenChange }: EditDcaEntryDialogProps) {
-  const updateEntry = useUpdateDcaEntry(strategyId, entry?.id ?? 0)
+  const updateEntry = useUpdateDcaEntry(strategyId, entry?.id ?? '')
   const [form, setForm] = useState<UpdateDcaEntryInput>({})
 
   useEffect(() => {
     if (entry) {
       setForm({
-        date: entry.date.slice(0, 10),
-        amount_usd: entry.amount_usd,
-        amount_ars: entry.amount_ars ?? undefined,
-        asset_price: entry.asset_price ?? undefined,
-        ccl_rate: entry.ccl_rate ?? undefined,
+        entryDate: entry.entryDate.slice(0, 10),
+        amountUsd: Number(entry.amountUsd),
+        amountArs: entry.amountArs != null ? Number(entry.amountArs) : undefined,
+        assetPriceAtEntry: entry.assetPriceAtEntry != null ? Number(entry.assetPriceAtEntry) : undefined,
         notes: entry.notes ?? '',
       })
     }
   }, [entry])
 
-  const set = (field: keyof UpdateDcaEntryInput, value: string | number) =>
+  const set = <K extends keyof UpdateDcaEntryInput>(field: K, value: UpdateDcaEntryInput[K]) =>
     setForm((f) => ({ ...f, [field]: value }))
 
   const handleSubmit = () => {
     updateEntry.mutate(
       {
         ...form,
-        amount_usd: form.amount_usd ? Number(form.amount_usd) : undefined,
-        amount_ars: form.amount_ars ? Number(form.amount_ars) : undefined,
-        asset_price: form.asset_price ? Number(form.asset_price) : undefined,
-        ccl_rate: form.ccl_rate ? Number(form.ccl_rate) : undefined,
+        amountUsd: form.amountUsd ? Number(form.amountUsd) : undefined,
+        amountArs: form.amountArs ? Number(form.amountArs) : undefined,
+        assetPriceAtEntry: form.assetPriceAtEntry ? Number(form.assetPriceAtEntry) : undefined,
       },
       { onSuccess: () => onOpenChange(false) },
     )
@@ -59,8 +57,8 @@ export function EditDcaEntryDialog({ strategyId, entry, open, onOpenChange }: Ed
             <Label>Fecha</Label>
             <Input
               type="date"
-              value={form.date ?? ''}
-              onChange={(e) => set('date', e.target.value)}
+              value={form.entryDate ?? ''}
+              onChange={(e) => set('entryDate', e.target.value)}
             />
           </div>
 
@@ -71,8 +69,8 @@ export function EditDcaEntryDialog({ strategyId, entry, open, onOpenChange }: Ed
                 type="number"
                 step="0.01"
                 min="0"
-                value={form.amount_usd ?? ''}
-                onChange={(e) => set('amount_usd', e.target.value)}
+                value={form.amountUsd ?? ''}
+                onChange={(e) => set('amountUsd', Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
@@ -81,33 +79,21 @@ export function EditDcaEntryDialog({ strategyId, entry, open, onOpenChange }: Ed
                 type="number"
                 step="1"
                 min="0"
-                value={form.amount_ars ?? ''}
-                onChange={(e) => set('amount_ars', e.target.value)}
+                value={form.amountArs ?? ''}
+                onChange={(e) => set('amountArs', Number(e.target.value))}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Precio activo</Label>
-              <Input
-                type="number"
-                step="0.0001"
-                min="0"
-                value={form.asset_price ?? ''}
-                onChange={(e) => set('asset_price', e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>CCL</Label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={form.ccl_rate ?? ''}
-                onChange={(e) => set('ccl_rate', e.target.value)}
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label>Precio activo</Label>
+            <Input
+              type="number"
+              step="0.0001"
+              min="0"
+              value={form.assetPriceAtEntry ?? ''}
+              onChange={(e) => set('assetPriceAtEntry', Number(e.target.value))}
+            />
           </div>
 
           <div className="space-y-1.5">

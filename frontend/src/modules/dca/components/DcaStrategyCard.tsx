@@ -9,7 +9,7 @@ interface DcaStrategyCardProps {
 }
 
 export function DcaStrategyCard({ strategy }: DcaStrategyCardProps) {
-  const isActive = strategy.status === 'ACTIVE'
+  const isActive = strategy.isActive
   const summary = strategy.summary
 
   return (

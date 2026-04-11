@@ -15,7 +15,7 @@ import { EditDcaEntryDialog } from './components/EditDcaEntryDialog'
 export default function DcaStrategyDetailPage() {
   const { strategyId } = useParams<{ strategyId: string }>()
   const navigate = useNavigate()
-  const id = Number(strategyId)
+  const id = strategyId ?? ''
 
   const { data: strategy, isLoading, isError } = useDcaStrategy(id)
   const deleteStrategy = useDeleteStrategy()
@@ -43,7 +43,7 @@ export default function DcaStrategyDetailPage() {
     )
   }
 
-  const isActive = strategy.status === 'ACTIVE'
+  const isActive = strategy.isActive
   const summary = strategy.summary
 
   const handleDelete = () => {
@@ -57,7 +57,7 @@ export default function DcaStrategyDetailPage() {
   }
 
   const handleDeleteEntry = (entry: DcaEntry) => {
-    if (!confirm(`¿Eliminar entrada del ${formatDate(entry.date)}?`)) return
+    if (!confirm(`¿Eliminar entrada del ${formatDate(entry.entryDate)}?`)) return
     deleteEntry.mutate(entry.id)
   }
 
@@ -77,7 +77,7 @@ export default function DcaStrategyDetailPage() {
           </div>
           <p className="text-sm text-muted-foreground mt-0.5">{strategy.name}</p>
           <p className="text-xs text-muted-foreground font-mono mt-0.5">
-            {strategy.broker.name} · {strategy.portfolio.name} · Desde {formatDate(strategy.started_at)}
+            {strategy.broker.name} · {strategy.portfolio.name} · Desde {formatDate(strategy.startedAt)}
           </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">

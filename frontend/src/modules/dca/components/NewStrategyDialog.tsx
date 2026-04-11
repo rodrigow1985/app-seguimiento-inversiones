@@ -20,19 +20,19 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 interface FormState {
   name: string
-  portfolio_id: string
-  asset_id: string
-  broker_id: string
-  started_at: string
+  portfolioId: string
+  assetId: string
+  brokerId: string
+  startedAt: string
   notes: string
 }
 
 const EMPTY: FormState = {
   name: '',
-  portfolio_id: '',
-  asset_id: '',
-  broker_id: '',
-  started_at: today(),
+  portfolioId: '',
+  assetId: '',
+  brokerId: '',
+  startedAt: today(),
   notes: '',
 }
 
@@ -46,15 +46,15 @@ export function NewStrategyDialog({ open, onOpenChange }: NewStrategyDialogProps
   const set = (field: keyof FormState, value: string) =>
     setForm((f) => ({ ...f, [field]: value }))
 
-  const canSubmit = form.name && form.portfolio_id && form.asset_id && form.broker_id
+  const canSubmit = form.name && form.portfolioId && form.assetId && form.brokerId
 
   const handleSubmit = () => {
     const input: CreateStrategyInput = {
       name: form.name,
-      portfolio_id: Number(form.portfolio_id),
-      asset_id: Number(form.asset_id),
-      broker_id: Number(form.broker_id),
-      started_at: form.started_at,
+      portfolioId: form.portfolioId,
+      assetId: form.assetId,
+      brokerId: form.brokerId,
+      startedAt: form.startedAt,
       notes: form.notes || undefined,
     }
     createStrategy.mutate(input, {
@@ -87,7 +87,7 @@ export function NewStrategyDialog({ open, onOpenChange }: NewStrategyDialogProps
 
           <div className="space-y-1.5">
             <Label>Activo</Label>
-            <Select value={form.asset_id} onValueChange={(v) => set('asset_id', v)}>
+            <Select value={form.assetId} onValueChange={(v) => set('assetId', v)}>
               <SelectTrigger><SelectValue placeholder="Seleccioná un activo" /></SelectTrigger>
               <SelectContent>
                 {assets.map((a) => (
@@ -102,7 +102,7 @@ export function NewStrategyDialog({ open, onOpenChange }: NewStrategyDialogProps
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label>Broker</Label>
-              <Select value={form.broker_id} onValueChange={(v) => set('broker_id', v)}>
+              <Select value={form.brokerId} onValueChange={(v) => set('brokerId', v)}>
                 <SelectTrigger><SelectValue placeholder="Broker" /></SelectTrigger>
                 <SelectContent>
                   {brokers.map((b) => (
@@ -113,7 +113,7 @@ export function NewStrategyDialog({ open, onOpenChange }: NewStrategyDialogProps
             </div>
             <div className="space-y-1.5">
               <Label>Cartera</Label>
-              <Select value={form.portfolio_id} onValueChange={(v) => set('portfolio_id', v)}>
+              <Select value={form.portfolioId} onValueChange={(v) => set('portfolioId', v)}>
                 <SelectTrigger><SelectValue placeholder="Cartera" /></SelectTrigger>
                 <SelectContent>
                   {portfolios.map((p) => (
@@ -128,8 +128,8 @@ export function NewStrategyDialog({ open, onOpenChange }: NewStrategyDialogProps
             <Label>Fecha de inicio</Label>
             <Input
               type="date"
-              value={form.started_at}
-              onChange={(e) => set('started_at', e.target.value)}
+              value={form.startedAt}
+              onChange={(e) => set('startedAt', e.target.value)}
             />
           </div>
 

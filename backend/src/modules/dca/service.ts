@@ -24,11 +24,26 @@ function enrichStrategy(strategy: {
   entries: Array<{ type: string; amountUsd: { toNumber(): number } }>
   [key: string]: unknown
 }) {
-  const entries = strategy.entries as Array<{ type: string; amountUsd: { add: (v: unknown) => unknown; sub: (v: unknown) => unknown; toString(): string } & { toNumber(): number } }>
+  const entries = strategy.entries as Array<{ type: string; amountUsd: { toNumber(): number } }>
   const accumulatedCapitalUsd = calcDcaAccumulatedCapital(
     entries.map((e) => ({ type: e.type, amountUsd: e.amountUsd as Parameters<typeof calcDcaAccumulatedCapital>[0][number]['amountUsd'] })),
   )
-  return { ...strategy, accumulatedCapitalUsd }
+
+  const totalInvestedUsd = entries
+    .filter((e) => e.type !== 'CIERRE')
+    .reduce((sum, e) => sum + e.amountUsd.toNumber(), 0)
+  const totalWithdrawnUsd = entries
+    .filter((e) => e.type === 'CIERRE')
+    .reduce((sum, e) => sum + e.amountUsd.toNumber(), 0)
+
+  const summary = {
+    total_invested_usd: totalInvestedUsd,
+    total_withdrawn_usd: totalWithdrawnUsd,
+    net_invested_usd: totalInvestedUsd - totalWithdrawnUsd,
+    entry_count: entries.length,
+  }
+
+  return { ...strategy, accumulatedCapitalUsd, summary }
 }
 
 export async function listStrategies(query: ListStrategiesQuery) {

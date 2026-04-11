@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAddDcaEntry, type CreateDcaEntryInput, type DcaEntry } from '@/api/dca'
 
 interface AddDcaEntryDialogProps {
-  strategyId: number
+  strategyId: string
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -18,11 +18,10 @@ const today = () => new Date().toISOString().slice(0, 10)
 
 const EMPTY: CreateDcaEntryInput = {
   type: 'INCREMENTO',
-  date: today(),
-  amount_usd: 0,
-  amount_ars: undefined,
-  asset_price: undefined,
-  ccl_rate: undefined,
+  entryDate: today(),
+  amountUsd: 0,
+  amountArs: undefined,
+  assetPriceAtEntry: undefined,
   notes: '',
 }
 
@@ -30,17 +29,16 @@ export function AddDcaEntryDialog({ strategyId, open, onOpenChange }: AddDcaEntr
   const addEntry = useAddDcaEntry(strategyId)
   const [form, setForm] = useState<CreateDcaEntryInput>(EMPTY)
 
-  const set = (field: keyof CreateDcaEntryInput, value: string | number) =>
+  const set = <K extends keyof CreateDcaEntryInput>(field: K, value: CreateDcaEntryInput[K]) =>
     setForm((f) => ({ ...f, [field]: value }))
 
   const handleSubmit = () => {
     addEntry.mutate(
       {
         ...form,
-        amount_usd: Number(form.amount_usd),
-        amount_ars: form.amount_ars ? Number(form.amount_ars) : undefined,
-        asset_price: form.asset_price ? Number(form.asset_price) : undefined,
-        ccl_rate: form.ccl_rate ? Number(form.ccl_rate) : undefined,
+        amountUsd: Number(form.amountUsd),
+        amountArs: form.amountArs ? Number(form.amountArs) : undefined,
+        assetPriceAtEntry: form.assetPriceAtEntry ? Number(form.assetPriceAtEntry) : undefined,
       },
       {
         onSuccess: () => {
@@ -76,7 +74,7 @@ export function AddDcaEntryDialog({ strategyId, open, onOpenChange }: AddDcaEntr
             </div>
             <div className="space-y-1.5">
               <Label>Fecha</Label>
-              <Input type="date" value={form.date} onChange={(e) => set('date', e.target.value)} />
+              <Input type="date" value={form.entryDate} onChange={(e) => set('entryDate', e.target.value)} />
             </div>
           </div>
 
@@ -88,8 +86,8 @@ export function AddDcaEntryDialog({ strategyId, open, onOpenChange }: AddDcaEntr
                 step="0.01"
                 min="0"
                 placeholder="0.00"
-                value={form.amount_usd || ''}
-                onChange={(e) => set('amount_usd', e.target.value)}
+                value={form.amountUsd || ''}
+                onChange={(e) => set('amountUsd', Number(e.target.value))}
               />
             </div>
             <div className="space-y-1.5">
@@ -99,35 +97,22 @@ export function AddDcaEntryDialog({ strategyId, open, onOpenChange }: AddDcaEntr
                 step="1"
                 min="0"
                 placeholder="0"
-                value={form.amount_ars || ''}
-                onChange={(e) => set('amount_ars', e.target.value)}
+                value={form.amountArs || ''}
+                onChange={(e) => set('amountArs', Number(e.target.value))}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label>Precio activo (opcional)</Label>
-              <Input
-                type="number"
-                step="0.0001"
-                min="0"
-                placeholder="0.0000"
-                value={form.asset_price || ''}
-                onChange={(e) => set('asset_price', e.target.value)}
-              />
-            </div>
-            <div className="space-y-1.5">
-              <Label>CCL (opcional)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="CCL del día"
-                value={form.ccl_rate || ''}
-                onChange={(e) => set('ccl_rate', e.target.value)}
-              />
-            </div>
+          <div className="space-y-1.5">
+            <Label>Precio activo (opcional)</Label>
+            <Input
+              type="number"
+              step="0.0001"
+              min="0"
+              placeholder="0.0000"
+              value={form.assetPriceAtEntry || ''}
+              onChange={(e) => set('assetPriceAtEntry', Number(e.target.value))}
+            />
           </div>
 
           <div className="space-y-1.5">
@@ -144,7 +129,7 @@ export function AddDcaEntryDialog({ strategyId, open, onOpenChange }: AddDcaEntr
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button
             onClick={handleSubmit}
-            disabled={addEntry.isPending || !form.amount_usd}
+            disabled={addEntry.isPending || !form.amountUsd}
           >
             {addEntry.isPending ? 'Guardando…' : 'Guardar entrada'}
           </Button>
